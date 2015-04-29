@@ -1,0 +1,2 @@
+# globalization
+(proof of concept) IBM® Globalization provides machine translation and editing capabilities that enable you to rapidly create, maintain, and revise translations for your Bluemix™ application UI.  This extension allows for the application developer to dynamically translate property files.  The application developer can either include updated property files directly in the application package or the applicaiton can use dynamic resource bundles for real-time lookup of strings. 
