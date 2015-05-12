@@ -47,6 +47,8 @@
             "name": "COMMAND",
             "type": "TextArea",
             "required": "true",
+            "label_key": "COMMAND_KEY",
+            "desc_key": "COMMAND_DESC"
             "default_value" : "#!/bin/bash"
         }
     ],
