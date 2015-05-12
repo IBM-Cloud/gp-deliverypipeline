@@ -77,7 +77,7 @@ if [[ $DEBUG -eq 1 ]]; then
 fi
 INIT_END_TIME=$(date +\"%s\")
 INIT_EST_TIME=$(($INIT_END_TIME-$INIT_START_TIME))
-echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"
+echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\""
     }
     },
     "project": "https://hub.jazz.net/project/alchemy/Alchemy-Ostanes",
