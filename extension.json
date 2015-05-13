@@ -61,15 +61,15 @@
     "execution": {
         "type": "JenkinsDocker",
         "shell": "#!/bin/bash
+set +x
+set +e 
 export INIT_START_TIME=$(date +\"%s\")
 export INPUT_PATTERN=#INPUT_PATTERN#
 export OUTPUT_DIR=#OUTPUT_DIR_KEY#
 export SUBMISSION_NAME=#SUBMISSION_NAME#
 export SETUP_SERVICE_SPACE=#SETUP_SERVICE_SPACE#
-set +x
-set +e 
 . $EXT_DIR/_init.sh
-./translate_me.sh ${INPUT_PATTERN} ${OUTPUT_DIR}
+$EXT_DIR/translate_me.sh ${INPUT_PATTERN} ${OUTPUT_DIR}
 INIT_END_TIME=$(date +\"%s\")
 INIT_EST_TIME=$(($INIT_END_TIME-$INIT_START_TIME))
 echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\""
