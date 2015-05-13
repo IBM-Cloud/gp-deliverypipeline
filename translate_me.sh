@@ -29,12 +29,39 @@ export no_color='\e[0m'
 export lang_en='en'
 export lang_all='de,es,fr,it,ja,pt-BR,zh-Hans,zh-Hant'
 
+usage()
+{
+    echo "Usage: `basename $0` [-s source_pattern] [-o output_directory]"
+    echo ""
+    echo "Using IBM Globalization Service on Bluemix translates files that match source_pattern" 
+    echo ""
+    echo "-s        Source file for translation."
+    echo "-d        Output directory for translated files.  Defaults to the location of the source pattern."
+    echo "-h        Displays this usage information"
+    echo ""
+}
+
 print_limitations() {
     echo -e "${label_color}Current limitations and assumptions:${no_color}"
     echo "  - source file is english"
     echo "  - desire all languages translated"
     echo "  - translated files will be placed in the same directory as the source file"
 }
+
+while getopts "sdh" OPTION
+do
+    case $OPTION in
+        s) GAAS_SOURCE_FILE=$OPTARG;;
+        o) DEBUG=true;;
+        h) usage; exit 1;;
+        ?) 
+        usage;
+        echo "ERROR: Unrecognized option specified.";
+        exit 1
+    esac
+done
+shift `expr $OPTIND - 1`
+
 
 if [ -z $GAAS_ENDPOINT ]; then 
     export GAAS_ENDPOINT="https://gaas.mybluemix.net/translate"
@@ -47,17 +74,46 @@ if [ -z $GAAS_PROJECT_NAME ]; then
     echo -e "${red}GAAS_PROJECT_NAME must be set in the environment${no_color}"
     exit 1
 fi 
-if [ -z $1 ]; then 
-    echo -e "Expected source file to be passed in as argument"
-    exit 1
+if [ -z $GAAS_LIB ]; then 
+    if [ -d "lib" ]; then 
+        export GAAS_LIB="lib" 
+    else 
+        echo -e "${red}GAAS_LIB must be set in the environment${no_color}"
+        exit 1
+    fi 
 fi 
-export GAAS_SOURCE_FILE=$1
 if [ ! -f $GAAS_SOURCE_FILE ]; then 
     echo -e "${red}${GAAS_SOURCE_FILE} does not exist${no_color}"
     exit 1
 else 
     echo "${GAAS_SOURCE_FILE} is the source file"
 fi 
+
+source_files=$(find `pwd` -name $GAAS_SOURCE_FILE)
+for file in $source_files; do
+    echo $file 
+    directory="${file%/*}"
+    echo "directory of resources:$directory"
+    filename="${file##/*/}"
+    echo "source filename:$filename" 
+    extension="${filename##*.}"
+    echo "filetype:$extension"
+    # find the naming pattern  
+    prefix="${filename%_*}"
+    if [ -z "$prefix" ]; then
+        echo -e "${red}Non supported input.  Assuming the input is of type [prefix]_[lang].[type] ${no_color}"
+        exit 1 
+    fi 
+    echo "prefix:${prefix}"
+    source_lang="${filename##*_}"
+    source_lang="${source_lang%%.*}"
+    if [ "${source_lang}" != "en" ]; then 
+        echo -e "${red}Currently only supports english as source language and not ${source_lang}${no_color}"
+        exit 2
+    fi 
+    echo "source language:${source_lang}"
+    echo "naming pattern:${prefix}_[lang].${extension}"
+done 
 
 print_limitations
 set -x
