@@ -67,16 +67,9 @@ export OUTPUT_DIR=#OUTPUT_DIR_KEY#
 export SUBMISSION_NAME=#SUBMISSION_NAME#
 export SETUP_SERVICE_SPACE=#SETUP_SERVICE_SPACE#
 set +x
-set +e
-# OSSC line
-if [[ $DEBUG -eq 1 ]]; then
-    dpkg -l | grep '^ii' > $EXT_DIR/pkglist
-fi 
+set +e 
 . $EXT_DIR/_init.sh
-if [[ $DEBUG -eq 1 ]]; then
-    dpkg -l | grep '^ii' > $EXT_DIR/pkglist2
-    diff $EXT_DIR/pkglist $EXT_DIR/pkglist2
-fi
+./translate_me.sh ${INPUT_PATTERN} ${OUTPUT_DIR}
 INIT_END_TIME=$(date +\"%s\")
 INIT_EST_TIME=$(($INIT_END_TIME-$INIT_START_TIME))
 echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\""

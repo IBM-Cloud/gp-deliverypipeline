@@ -50,6 +50,12 @@ installwithpython27() {
 
 set +e
 set +x 
+##################################################
+# capture packages that on the originial container 
+##################################################
+if [[ $DEBUG -eq 1 ]]; then
+    dpkg -l | grep '^ii' > $EXT_DIR/pkglist
+fi 
 
 ###############################
 # Configure extension PATH    #
@@ -102,7 +108,7 @@ if [ $RESULT -ne 0 ]; then
     echo -e "${label_color}Successfully installed Cloud Foundry CLI ${no_color}"
 fi  
 
-# check that we are logged in correctly to cloud foundry 
+# check that we are logged into cloud foundry correctly
 cf target 
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
@@ -112,3 +118,11 @@ else
     echo -e "${green}Successfully logged into IBM Bluemix${no_color}"
     exit $RESULT
 fi 
+
+#############################################
+# capture packages installed on the container  
+#############################################
+if [[ $DEBUG -eq 1 ]]; then
+    dpkg -l | grep '^ii' > $EXT_DIR/pkglist2
+    diff $EXT_DIR/pkglist $EXT_DIR/pkglist2
+fi
