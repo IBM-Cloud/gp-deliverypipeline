@@ -82,14 +82,14 @@ if [ -z $GAAS_LIB ]; then
         exit 1
     fi 
 fi 
-if [ ! -f $GAAS_SOURCE_FILE ]; then 
-    echo -e "${red}${GAAS_SOURCE_FILE} does not exist${no_color}"
+if [ -z $GAAS_SOURCE_FILE ]; then 
+    echo -e "${red}${GAAS_SOURCE_FILE} is not set${no_color}"
     exit 1
 else 
-    echo "${GAAS_SOURCE_FILE} is the source file"
+    echo "${GAAS_SOURCE_FILE} is the source file pattern"
 fi 
 
-source_files=$(find `pwd` -name $GAAS_SOURCE_FILE)
+source_files=$(find `pwd` -name ${GAAS_SOURCE_FILE})
 for file in $source_files; do
     echo $file 
     directory="${file%/*}"
@@ -114,7 +114,7 @@ for file in $source_files; do
     echo "source language:${source_lang}"
     echo "naming pattern:${prefix}_[lang].${extension}"
 done 
-
+exit 
 print_limitations
 set -x
 
