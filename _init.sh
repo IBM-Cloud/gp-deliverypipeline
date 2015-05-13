@@ -136,7 +136,7 @@ else
     exit 1
 fi 
 export GAAS_API_KEY="77f20cc8-3db0-41a6-864b-5e3d99269d97"
-
+export GAAS_PROJECT_NAME=${SUBMISSION_NAME}
 #############################################
 # Capture packages installed on the container  
 #############################################
