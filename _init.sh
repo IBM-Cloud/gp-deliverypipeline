@@ -122,7 +122,6 @@ if [ $RESULT -ne 0 ]; then
     exit $RESULT
 else 
     echo -e "${green}Successfully logged into IBM Bluemix${no_color}"
-    exit $RESULT
 fi 
 
 ###################################
