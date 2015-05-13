@@ -70,8 +70,8 @@ if [ -z $GAAS_API_KEY ]; then
     echo -e "${red}API Key for Globalization Service must be set in the environment${no_color}"
     exit 1
 fi 
-if [ -z $GAAS_PROJECT_NAME ]; then 
-    echo -e "${red}GAAS_PROJECT_NAME must be set in the environment${no_color}"
+if [ -z $SUBMISSION_NAME ]; then 
+    echo -e "${red}SUBMISSION_NAME must be set in the environment${no_color}"
     exit 1
 fi 
 if [ -z $GAAS_LIB ]; then 
@@ -82,14 +82,14 @@ if [ -z $GAAS_LIB ]; then
         exit 1
     fi 
 fi 
-if [ -z $GAAS_SOURCE_FILE ]; then 
-    echo -e "${red}${GAAS_SOURCE_FILE} is not set${no_color}"
+if [ -z $INPUT_PATTERN ]; then 
+    echo -e "${red}INPUT_PATTERN is not set${no_color}"
     exit 1
 else 
-    echo "${GAAS_SOURCE_FILE} is the source file pattern"
+    echo "${INPUT_PATTERN} is the source file pattern"
 fi 
 
-source_files=$(find `pwd` -name ${GAAS_SOURCE_FILE})
+source_files=$(find `pwd` -name ${INPUT_PATTERN})
 for file in $source_files; do
     echo $file 
     directory="${file%/*}"
@@ -119,7 +119,7 @@ print_limitations
 set -x
 
 # create  project 
-java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd create -p ${GAAS_PROJECT_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY} -s en -l ${lang_all}
+java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd create -p ${SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY} -s en -l ${lang_all}
 RESULT=$?
 if [ $RESULT -eq 1 ]; then
     echo "Project has been already created"
@@ -128,7 +128,7 @@ else
 fi  
 # upload source 
 echo "uploading ${GAAS_SOURCE_FILE}"
-java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd import -f ${GAAS_SOURCE_FILE} -l en -t java -p ${GAAS_PROJECT_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
+java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd import -f ${GAAS_SOURCE_FILE} -l en -t java -p ${SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
 # download translated files 
 array=(${lang_all//,/ })
 export OUTPUT_PREFIX="Language"
@@ -138,7 +138,7 @@ do
     echo "$i=>${array[i]}"
     OUTPUT_FILE_NAME="${OUTPUT_PREFIX}_${array[i]}.${OUTPUT_TYPE}"
     echo "downlaoding ${array[i]} translated files to ${OUTPUT_FILE_NAME}"
-    java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd export -f ${OUTPUT_FILE_NAME} -l ${array[i]} -t java -p ${GAAS_PROJECT_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
+    java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd export -f ${OUTPUT_FILE_NAME} -l ${array[i]} -t java -p ${SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
     RESULT=$? 
     if [ $RESULT -ne 0 ]; then
         echo "Failed"
