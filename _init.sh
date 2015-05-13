@@ -129,7 +129,7 @@ fi
 ###################################
 cf services | grep "IBM Globalization"
 SERVICE_EXISTS=$?
-if [ SERVICE_EXISTS -eq 0 ]; then 
+if [ ${SERVICE_EXISTS} -eq 0 ]; then 
     echo -e "IBM Gloabalization Service exists in space"
 else 
     echo -e "${red}IBM Gloabalization Service does not exist in Bluemix Space${no_color}"
