@@ -36,9 +36,6 @@ print_limitations() {
     echo "  - translated files will be placed in the same directory as the source file"
 }
 
-if [ -z $GAAS_LIB ]; then 
-    export GAAS_LIB="/Users/robbie/alchemy/services_globalization/lib"
-fi 
 if [ -z $GAAS_ENDPOINT ]; then 
     export GAAS_ENDPOINT="https://gaas.mybluemix.net/translate"
 fi 

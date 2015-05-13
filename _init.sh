@@ -63,6 +63,12 @@ fi
 if [ -n $EXT_DIR ]; then 
     export PATH=$EXT_DIR:$PATH
 fi 
+##############################
+# Configure extension LIB    #
+##############################
+if [ -z $GAAS_LIB ]; then 
+    export GAAS_LIB="${EXT_DIR}/lib"
+fi 
 
 ################################
 # Setup archive information    #
@@ -119,8 +125,21 @@ else
     exit $RESULT
 fi 
 
+###################################
+# Configure Globalization Service #
+###################################
+cf services | grep "IBM Globalization"
+SERVICE_EXISTS=$?
+if [ SERVICE_EXISTS -eq 0 ]; then 
+    echo -e "IBM Gloabalization Service exists in space"
+else 
+    echo -e "${red}IBM Gloabalization Service does not exist in Bluemix Space${no_color}"
+    exit 1
+fi 
+export GAAS_API_KEY="77f20cc8-3db0-41a6-864b-5e3d99269d97"
+
 #############################################
-# capture packages installed on the container  
+# Capture packages installed on the container  
 #############################################
 if [[ $DEBUG -eq 1 ]]; then
     dpkg -l | grep '^ii' > $EXT_DIR/pkglist2
