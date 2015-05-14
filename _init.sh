@@ -135,6 +135,8 @@ python globalization_check.py
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
     echo -e "${red}Failed to setup/check service in space${no_color}"
+    echo "checking that I can create an application using local CLI"
+    cf push containerbridge -i 1 -d mybluemix.net -k 1M -m 64M --no-hostname --no-manifest --no-route --no-start
     exit $RESULT
 else 
     echo -e "${green}Successfully setup/checked service within Bluemix space${no_color}"
