@@ -302,7 +302,7 @@ def getGlobalizationCredentialsFromBoundApp (service=GLOBALIZATION_SERVICE, bind
         if (setupSpace != None) and (setupSpace.lower() == "true"):
             binding_app = createBoundAppForService(service, GLOBALIZATION_SERVICE_PLAN)
         else:
-            raise Exception("Service \"" + service + "\" is not loaded and bound in this space.  " + LABEL_COLOR + "Please add the service to the space and bind it to an app, or set the parameter to allow the space to be setup automatically" + LABEL_NO_COLOR)
+            raise Exception("Service \"" + service + "\" is not loaded and bound in this space.  " + LABEL_COLOR + "Please add the service to the space and bind it to an app, or set the 'Set up service and space for me' on the job to allow the space to be setup automatically" + LABEL_NO_COLOR)
 
     # if STILL no binding app, we're out of options, just fail out
     if binding_app == None:
