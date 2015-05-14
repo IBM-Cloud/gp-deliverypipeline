@@ -16,7 +16,7 @@
             "name": "INPUT_PATTERN",
             "type": "Text",
             "required": "true",
-            "default_value": "Language.properties",
+            "default_value": "Language_en.properties",
             "label_key": "INPUT_PATTERN_KEY",
             "desc_key": "INPUT_PATTERN_DESC"
         },   

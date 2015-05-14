@@ -127,15 +127,12 @@ fi
 ###################################
 # Configure Globalization Service #
 ###################################
-cf services | grep "IBM Globalization"
-SERVICE_EXISTS=$?
-if [ ${SERVICE_EXISTS} -eq 0 ]; then 
-    echo -e "IBM Gloabalization Service exists in space"
-else 
-    echo -e "${red}IBM Gloabalization Service does not exist in Bluemix Space${no_color}"
-    exit 1
-fi 
-export GAAS_API_KEY="77f20cc8-3db0-41a6-864b-5e3d99269d97"
+echo "Setting up space"
+pushd . 
+python globalization_check.py 
+. setenv_globalization.sh 
+rm setenv_globalization.sh  
+popd 
 
 #############################################
 # Capture packages installed on the container  
