@@ -19,15 +19,7 @@
             "default_value": "Language.properties",
             "label_key": "INPUT_PATTERN_KEY",
             "desc_key": "INPUT_PATTERN_DESC"
-        },        
-        {
-            "name": "OUTPUT_DIR",
-            "type": "Text",
-            "required": "false",
-            "default_value": "",
-            "label_key": "OUTPUT_DIR_KEY",
-            "desc_key": "OUTPUT_DIR_DESC"
-        },
+        },   
         {
             "name": "SETUP_SERVICE_SPACE",
             "type": "Text",
@@ -65,15 +57,14 @@ set +x
 set +e 
 export INIT_START_TIME=$(date +\"%s\")
 export INPUT_PATTERN=#INPUT_PATTERN#
-export OUTPUT_DIR=#OUTPUT_DIR_KEY#
 export SUBMISSION_NAME=#SUBMISSION_NAME#
 export SETUP_SERVICE_SPACE=#SETUP_SERVICE_SPACE#
 . $EXT_DIR/_init.sh
-echo \"Runnig translation\"
 INIT_END_TIME=$(date +\"%s\")
 INIT_EST_TIME=$(($INIT_END_TIME-$INIT_START_TIME))
 echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"
-$EXT_DIR/translate_me.sh ${INPUT_PATTERN} ${OUTPUT_DIR}
+echo \"Runnig translation\"
+$EXT_DIR/translate_me.sh -s ${INPUT_PATTERN} -p ${SUBMISSION_NAME}
 echo \"Done with translation\"
 TRANSLATION_END_TIME=$(date +\"%s\")
 TRANSLATION_EST_TIME=$((INIT_START_TIME-$TRANSLATION_END_TIME))

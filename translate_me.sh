@@ -35,8 +35,9 @@ usage()
     echo ""
     echo "Using IBM Globalization Service on Bluemix translates files that match source_pattern" 
     echo ""
-    echo "-s        Source file for translation."
-    echo "-d        Output directory for translated files.  Defaults to the location of the source pattern."
+    echo "-s        Source file for translation"
+    echo "-p        Name of the Globalization project to create"
+    echo "-d        Debug mode"
     echo "-h        Displays this usage information"
     echo ""
 }
@@ -48,12 +49,16 @@ print_limitations() {
     echo "  - translated files will be placed in the same directory as the source file"
 }
 
-while getopts "sdh" OPTION
+########################
+# Process arguments    #
+########################
+while getopts "s:p:hd" OPTION
 do
     case $OPTION in
-        s) GAAS_SOURCE_FILE=$OPTARG;;
-        o) DEBUG=true;;
+        s) echo "s"; export INPUT_PATTERN=$OPTARG; echo "set INPUT_PATTERN to ${OPTARG}";;
+        p) echo "p"; export SUBMISSION_NAME=$OPTARG; echo "set SUBMISSION_NAME to ${OPTARG}";;
         h) usage; exit 1;;
+        d) usage; export DEBUG=1;;
         ?) 
         usage;
         echo "ERROR: Unrecognized option specified.";
@@ -61,8 +66,12 @@ do
     esac
 done
 shift `expr $OPTIND - 1`
+echo "SUBMISSION_NAME:${SUBMISSION_NAME}"
+print_limitations
 
-
+###################
+# Check inputs    #
+###################
 if [ -z $GAAS_ENDPOINT ]; then 
     export GAAS_ENDPOINT="https://gaas.mybluemix.net/translate"
 fi 
@@ -74,9 +83,12 @@ if [ -z $SUBMISSION_NAME ]; then
     echo -e "${red}SUBMISSION_NAME must be set in the environment${no_color}"
     exit 1
 fi 
+
 if [ -z $GAAS_LIB ]; then 
-    if [ -d "lib" ]; then 
-        export GAAS_LIB="lib" 
+    lib_guess=$(find `pwd` -name gaas-java-client-tools*)
+    lib_directory="${lib_guess%/*}"
+    if [ -d "${lib_directory}" ]; then 
+        export GAAS_LIB="${lib_directory}" 
     else 
         echo -e "${red}GAAS_LIB must be set in the environment${no_color}"
         exit 1
@@ -88,16 +100,42 @@ if [ -z $INPUT_PATTERN ]; then
 else 
     echo "${INPUT_PATTERN} is the source file pattern"
 fi 
+####################################
+# Create Globalization Project     #
+####################################
+if [[ $DEBUG -eq 1 ]]; then
+    set -x 
+fi 
 
+############################################################
+# Find and translate all files that match input pattern    #
+############################################################
 source_files=$(find `pwd` -name ${INPUT_PATTERN})
+COUNT=0
 for file in $source_files; do
-    echo $file 
+    echo "-----------------"
+    echo "Processing $file"
+    echo "-----------------" 
+    let COUNT+=1
+    if [ $COUNT -gt 1 ]; then 
+        THIS_SUBMISSION_NAME="${SUBMISSION_NAME}_${COUNT}"
+    else 
+        THIS_SUBMISSION_NAME=${SUBMISSION_NAME}
+    fi 
     directory="${file%/*}"
     echo "directory of resources:$directory"
     filename="${file##/*/}"
     echo "source filename:$filename" 
     extension="${filename##*.}"
     echo "filetype:$extension"
+    case $extension in
+        'properties') filetype="java";;
+        'json') filetype="json";;
+        ?) 
+        echo "${red}Unrecognized file type $extension used";
+        exit 1
+    esac
+
     # find the naming pattern  
     prefix="${filename%_*}"
     if [ -z "$prefix" ]; then
@@ -112,36 +150,37 @@ for file in $source_files; do
         exit 2
     fi 
     echo "source language:${source_lang}"
-    echo "naming pattern:${prefix}_[lang].${extension}"
-done 
-exit 
-print_limitations
-set -x
+    echo "${label_color}Processed files will be placed in ${directory} and will follow naming pattern:${prefix}_[lang].${extension} ${no_color}"
 
-# create  project 
-java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd create -p ${SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY} -s en -l ${lang_all}
-RESULT=$?
-if [ $RESULT -eq 1 ]; then
-    echo "Project has been already created"
-else 
-    echo "Created project"
-fi  
-# upload source 
-echo "uploading ${GAAS_SOURCE_FILE}"
-java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd import -f ${GAAS_SOURCE_FILE} -l en -t java -p ${SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
-# download translated files 
-array=(${lang_all//,/ })
-export OUTPUT_PREFIX="Language"
-export OUTPUT_TYPE="properties"
-for i in "${!array[@]}"
-do
-    echo "$i=>${array[i]}"
-    OUTPUT_FILE_NAME="${OUTPUT_PREFIX}_${array[i]}.${OUTPUT_TYPE}"
-    echo "downlaoding ${array[i]} translated files to ${OUTPUT_FILE_NAME}"
-    java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd export -f ${OUTPUT_FILE_NAME} -l ${array[i]} -t java -p ${SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
-    RESULT=$? 
-    if [ $RESULT -ne 0 ]; then
-        echo "Failed"
-        exit $RESULT
-    fi 
-done
+    pushd . 
+    cd ${directory}
+    java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd create -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY} -s ${source_lang} -l ${lang_all}
+    RESULT=$?
+
+    if [ $RESULT -eq 1 ]; then
+        echo "Project has been already created"
+    else 
+        echo "Created project"
+    fi  
+    # upload source 
+    echo "uploading ${GAAS_SOURCE_FILE}"
+    java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd import -f ${file} -l ${source_lang} -t ${filetype} -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
+    # download translated files 
+    array=(${lang_all//,/ })
+
+    for i in "${!array[@]}"
+    do
+        OUTPUT_FILE_NAME="${prefix}_${array[i]}.${extension}"
+        echo "downlaoding ${array[i]} translated files to ${OUTPUT_FILE_NAME}"
+        java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd export -f ${OUTPUT_FILE_NAME} -l ${array[i]} -t ${filetype} -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
+        RESULT=$? 
+        if [ $RESULT -ne 0 ]; then
+            echo "Failed"
+            exit $RESULT
+        fi 
+    done
+    popd
+done 
+if [[ $DEBUG -eq 1 ]]; then
+    set +x 
+fi 
