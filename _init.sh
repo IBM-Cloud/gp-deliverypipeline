@@ -99,20 +99,20 @@ cf help &> /dev/null
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
     echo "Installing Cloud Foundry CLI"
-    pushd . 
+    pushd . >/dev/null
     cd $EXT_DIR 
+    curl --silent -o cf-linux-amd64.tgz -v -L https://cli.run.pivotal.io/stable?release=linux64-binary &>/dev/null 
     gunzip cf-linux-amd64.tgz &> /dev/null
     tar -xvf cf-linux-amd64.tar  &> /dev/null
     cf help &> /dev/null
     RESULT=$?
     if [ $RESULT -ne 0 ]; then
         echo -e "${red}Could not install the cloud foundry CLI ${no_color}"
-        ${EXT_DIR}/print_help.sh    
         exit 1
     fi  
-    popd
+    popd >/dev/null
     echo -e "${label_color}Successfully installed Cloud Foundry CLI ${no_color}"
-fi  
+fi 
 
 # check that we are logged into cloud foundry correctly
 cf target 
