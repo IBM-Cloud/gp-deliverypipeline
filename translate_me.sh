@@ -42,9 +42,13 @@ usage()
     echo ""
 }
 
+debugme() {
+  [[ $DEBUG = 1 ]] && "$@" || :
+}
+
 print_limitations() {
     echo -e "${label_color}Current limitations and assumptions:${no_color}"
-    echo "  - source file is english"
+    echo "  - source pattern will look for files of the format [prefix]_[lang].[type].  For example whateveriwant_en.properties, something_fr.json"
     echo "  - desire all languages translated"
     echo "  - translated files will be placed in the same directory as the source file"
 }
@@ -113,8 +117,11 @@ fi
 source_files=$(find `pwd` -name ${INPUT_PATTERN})
 COUNT=0
 for file in $source_files; do
+    cur_dir=`pwd`
+    local_file_path="${file##${cur_dir}/}"
+
     echo "-----------------"
-    echo "Processing $file"
+    echo "Processing $local_file_path"
     echo "-----------------" 
     let COUNT+=1
     if [ $COUNT -gt 1 ]; then 
@@ -123,16 +130,16 @@ for file in $source_files; do
         THIS_SUBMISSION_NAME=${SUBMISSION_NAME}
     fi 
     directory="${file%/*}"
-    echo "directory of resources:$directory"
+    debugme echo "directory of resources:$directory"
     filename="${file##/*/}"
-    echo "source filename:$filename" 
+    debugme echo "source filename:$filename" 
     extension="${filename##*.}"
-    echo "filetype:$extension"
+    debugme echo "filetype:$extension"
     case $extension in
         'properties') filetype="java";;
         'json') filetype="json";;
         ?) 
-        echo "${red}Unrecognized file type $extension used";
+        echo -e "${red}Unrecognized file type $extension used";
         exit 1
     esac
 
@@ -142,45 +149,56 @@ for file in $source_files; do
         echo -e "${red}Non supported input.  Assuming the input is of type [prefix]_[lang].[type] ${no_color}"
         exit 1 
     fi 
-    echo "prefix:${prefix}"
+    debugme echo "prefix:${prefix}"
     source_lang="${filename##*_}"
     source_lang="${source_lang%%.*}"
     if [ "${source_lang}" != "en" ]; then 
         echo -e "${red}Currently only supports english as source language and not ${source_lang}${no_color}"
         exit 2
     fi 
-    echo "source language:${source_lang}"
-    echo "${label_color}Processed files will be placed in ${directory} and will follow naming pattern:${prefix}_[lang].${extension} ${no_color}"
+    debugme echo "source language:${source_lang}"
+    debugme echo "${label_color}Processed files will be placed in ${directory} and will follow naming pattern:${prefix}_[lang].${extension} ${no_color}"
 
-    pushd . 
-    cd ${directory}
+    echo "Creating/checking for IBM Globalization Service project ${THIS_SUBMISSION_NAME}"
     java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd create -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY} -s ${source_lang} -l ${lang_all}
     RESULT=$?
 
     if [ $RESULT -eq 1 ]; then
-        echo "Project has been already created"
+        echo "..Project has been already created"
     else 
-        echo "Created project"
+        echo "..Created project"
     fi  
+    
+    pushd . 
+    cd ${directory}
+    
     # upload source 
-    echo "uploading ${GAAS_SOURCE_FILE}"
+    echo "Uploading ${GAAS_SOURCE_FILE}"
     java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd import -f ${file} -l ${source_lang} -t ${filetype} -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
     # download translated files 
     array=(${lang_all//,/ })
+    archive_path="${directory##${cur_dir}/}"
+    if [ "${archive_path}" == "${cur_dir}" ]; then
+        archive_path="."
+    fi 
 
     for i in "${!array[@]}"
     do
         OUTPUT_FILE_NAME="${prefix}_${array[i]}.${extension}"
-        echo "downlaoding ${array[i]} translated files to ${OUTPUT_FILE_NAME}"
+        echo "Downloading ${array[i]} translated file ${OUTPUT_FILE_NAME} into ${archive_path}"
         java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd export -f ${OUTPUT_FILE_NAME} -l ${array[i]} -t ${filetype} -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
         RESULT=$? 
         if [ $RESULT -ne 0 ]; then
             echo "Failed"
             exit $RESULT
         fi 
+        echo ""
     done
+    echo -e "${green}Successfully processed ${local_file_path} ${no_color}"
     popd
 done 
+echo -e "${label_color}All source files have been placed in the archive of this build, and can be used by additional stages${no_color}"
+echo -e "${label_color}All translated files have been put in the same directory as the original source files${no_color}"
 if [[ $DEBUG -eq 1 ]]; then
     set +x 
 fi 
