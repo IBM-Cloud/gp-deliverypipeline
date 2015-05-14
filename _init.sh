@@ -131,6 +131,7 @@ echo "Setting up space"
 pushd . 
 cd ${EXT_DIR}
 python globalization_check.py 
+debugme cat setenv_globalization
 . setenv_globalization.sh
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
