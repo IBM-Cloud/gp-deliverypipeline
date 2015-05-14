@@ -61,10 +61,10 @@ RESULT=$?
 echo \"Done with translation\"
 TRANSLATION_END_TIME=$(date +\"%s\")
 TRANSLATION_EST_TIME=$((INIT_START_TIME-$TRANSLATION_END_TIME))
-echo -e \"Translation runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\""
+echo -e \"Translation runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"
 if [ $RESULT -ne 0 ]; then 
     exit $RESULT
-fi 
+fi"
     }
     },
     "project": "https://hub.jazz.net/project/alchemy/Alchemy-Ostanes",
