@@ -266,7 +266,7 @@ def createBoundAppForService (service=DEFAULT_SERVICE, plan=DEFAULT_SERVICE_PLAN
     # load it into our space if possible
     if serviceName == None:
         Logger.info("Service \"" + service + "\" is not loaded in this space, attempting to load it")
-        serviceName = DEFAULT_SERVICE_NAME
+        serviceName = DEFAULT_SERVICE
         command = "cf create-service \"" + service + "\" \"" + plan + "\" \"" + serviceName + "\""
         Logger.debug("Executing command \"" + command + "\"")
         proc = Popen([command], 
