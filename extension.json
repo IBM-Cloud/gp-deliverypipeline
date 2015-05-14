@@ -34,14 +34,6 @@
             "required": "false",
             "label_key": "SUBMISSION_NAME_KEY",
             "desc_key": "SUBMISSION_NAME_DESC"
-        },
-        {
-            "name": "COMMAND",
-            "type": "TextArea",
-            "required": "true",
-            "label_key": "COMMAND_KEY",
-            "desc_key": "COMMAND_DESC",
-            "default_value" : "#!/bin/bash"
         }
     ],
     "outputs": [
