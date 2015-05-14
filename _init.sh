@@ -129,8 +129,16 @@ fi
 ###################################
 echo "Setting up space"
 pushd . 
+cd ${EXT_DIR}
 python globalization_check.py 
-. setenv_globalization.sh 
+. setenv_globalization.sh
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+    echo -e "${red}Failed to setup/check service in space${no_color}"
+    exit $RESULT
+else 
+    echo -e "${green}Successfully setup/checked service within Bluemix space${no_color}"
+fi 
 rm setenv_globalization.sh  
 popd 
 
