@@ -59,8 +59,8 @@ print_limitations() {
 while getopts "s:p:hd" OPTION
 do
     case $OPTION in
-        s) echo "s"; export INPUT_PATTERN=$OPTARG; echo "set INPUT_PATTERN to ${OPTARG}";;
-        p) echo "p"; export SUBMISSION_NAME=$OPTARG; echo "set SUBMISSION_NAME to ${OPTARG}";;
+        s) export INPUT_PATTERN=$OPTARG; echo "set INPUT_PATTERN to ${OPTARG}";;
+        p) export SUBMISSION_NAME=$OPTARG; echo "set SUBMISSION_NAME to ${OPTARG}";;
         h) usage; exit 1;;
         d) usage; export DEBUG=1;;
         ?) 
