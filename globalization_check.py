@@ -157,7 +157,6 @@ def findServiceDashboard (service=DEFAULT_SERVICE):
 # search cf, find an app in our space bound to the given service, and return
 # the app name if found, or None if not
 def findBoundAppForService (service=DEFAULT_SERVICE):
-
     proc = Popen(["cf services"], shell=True, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate();
 
@@ -377,10 +376,12 @@ try:
     parsedArgs = parseArgs()
     Logger.info("Getting credentials for Globalization service")
     api_key, uri = getGlobalizationCredentialsFromBoundApp()
+    dashboard = findServiceDashboard(GLOBALIZATION_SERVICE)
     Logger.info("Target uri for Globalization Service is " + uri)
     Logger.info("Writing credentials to setenv_globalization.sh")
     setenvvariable('GAAS_API_KEY', api_key)
     setenvvariable('GAAS_ENDPOINT', uri)
+    setenvvariable('GAAS_DASHBOARD', dashboard)
 
     # allow testing connection without full job scan and submission
     if parsedArgs['loginonly']:

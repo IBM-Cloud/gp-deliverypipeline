@@ -104,6 +104,14 @@ if [ -z $INPUT_PATTERN ]; then
 else 
     echo "${INPUT_PATTERN} is the source file pattern"
 fi 
+
+if [ -z GAAS_DASHBOARD ]; then 
+    # attempt to find it
+    GAAS_DASHBOARD=$(cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
+    if [ -z GAAS_DASHBOARD ]; then 
+        GAAS_DASHBOARD="unknown"
+    fi     
+fi 
 ####################################
 # Create Globalization Project     #
 ####################################
@@ -199,6 +207,11 @@ for file in $source_files; do
 done 
 echo -e "${label_color}All source files have been placed in the archive of this build, and can be used by additional stages${no_color}"
 echo -e "${label_color}All translated files have been put in the same directory as the original source files${no_color}"
+echo 
+echo -e "A typical continuous delivery scenario uses machine translation as a part of their continuous integration process.  Periodically, the translated messages can be reviewed and updated by translation experts.  This is best done directly within the Globalization Service Dashboard on IBM Bluemix.  Manually applied updates to translated strings will note be overwritten by future build processes unless the source string has also changed."  
+echo 
+echo "${green}The Globalization Dashboard for this organization and space is located at ${GAAS_DASHBOARD}${no_color}"
+
 if [[ $DEBUG -eq 1 ]]; then
     set +x 
 fi 
