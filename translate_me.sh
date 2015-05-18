@@ -70,7 +70,6 @@ do
     esac
 done
 shift `expr $OPTIND - 1`
-echo "SUBMISSION_NAME:${SUBMISSION_NAME}"
 print_limitations
 
 ###################
@@ -109,6 +108,9 @@ if [ -z $GAAS_DASHBOARD ]; then
     # attempt to find it
     export GAAS_DASHBOARD=$(cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
     if [ -z $GAAS_DASHBOARD ]; then 
+        echo -e "${label_color}could not locate GaaS Dashboard${no_color}"
+        cf services
+        cf service "IBM Globalization"
         export GAAS_DASHBOARD="unknown"
     fi     
 fi 
@@ -210,7 +212,7 @@ echo -e "${label_color}All translated files have been put in the same directory 
 echo 
 echo -e "A typical continuous delivery scenario uses machine translation as a part of their continuous integration process.  Periodically, the translated messages can be reviewed and updated by translation experts.  This is best done directly within the Globalization Service Dashboard on IBM Bluemix.  Manually applied updates to translated strings will note be overwritten by future build processes unless the source string has also changed."  
 echo 
-echo -e "${green}The Globalization Dashboard for this organization and space is located at ${GAAS_DASHBOARD}${no_color}"
+echo -e "The Globalization Dashboard for this organization and space is located at ${green} ${GAAS_DASHBOARD} ${no_color}"
 
 if [[ $DEBUG -eq 1 ]]; then
     set +x 
