@@ -104,16 +104,6 @@ else
     echo "${INPUT_PATTERN} is the source file pattern"
 fi 
 
-if [ -z $GAAS_DASHBOARD ]; then 
-    # attempt to find it
-    export GAAS_DASHBOARD=$(cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
-    if [ -z $GAAS_DASHBOARD ]; then 
-        echo -e "${label_color}could not locate GaaS Dashboard${no_color}"
-        cf services
-        cf service "IBM Globalization"
-        export GAAS_DASHBOARD="unknown"
-    fi     
-fi 
 ####################################
 # Create Globalization Project     #
 ####################################
@@ -207,6 +197,16 @@ for file in $source_files; do
     echo -e "${green}Successfully processed ${local_file_path} ${no_color}"
     popd
 done 
+if [ -z $GAAS_DASHBOARD ]; then 
+    # attempt to find it
+    export GAAS_DASHBOARD=$(cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
+    if [ -z $GAAS_DASHBOARD ]; then 
+        echo -e "${label_color}could not locate GaaS Dashboard${no_color}"
+        cf services
+        cf service "IBM Globalization"
+        export GAAS_DASHBOARD="unknown"
+    fi     
+fi 
 echo -e "${label_color}All source files have been placed in the archive of this build, and can be used by additional stages${no_color}"
 echo -e "${label_color}All translated files have been put in the same directory as the original source files${no_color}"
 echo 
