@@ -367,7 +367,7 @@ def getGlobalizationCredentialsFromBoundApp (service=GLOBALIZATION_SERVICE, bind
 
 def setenvvariable(key, value, filename="setenv_globalization.sh"):
     keyvalue = 'export %s=%s\n' % (key, value)
-    open(filename, 'a').write(keyvalue)
+    open(filename, 'a+').write(keyvalue)
 
 # begin main execution sequence
 
