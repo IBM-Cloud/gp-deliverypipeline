@@ -200,6 +200,8 @@ done
 if [ -z $GAAS_DASHBOARD ]; then 
     # attempt to find it
     export GAAS_DASHBOARD=$(cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
+    debugme cf services
+    debugme cf service "IBM Globalization"
     if [ -z $GAAS_DASHBOARD ]; then 
         echo -e "${label_color}could not locate GaaS Dashboard${no_color}"
         cf services
