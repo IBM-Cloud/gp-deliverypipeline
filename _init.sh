@@ -110,7 +110,7 @@ if [ $RESULT -ne 0 ]; then
     echo "Cloud Foundry CLI not already installed, adding CF to PATH"
     export PATH=$PATH:$EXT_DIR/bin
 else 
-    echo 'Cloud Foundry CLI already available in container.  Laest CLI version available in ${EXT_DIR}/bin'  
+    echo 'Cloud Foundry CLI already available in container.  Latest CLI version available in ${EXT_DIR}/bin'  
 fi 
 
 # check that we are logged into cloud foundry correctly
