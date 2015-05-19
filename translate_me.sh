@@ -205,7 +205,16 @@ if [ -z "$GAAS_DASHBOARD" ]; then
     echo -e "${label_color}could not locate GaaS Dashboard${no_color}"
     cf services
     cf service "IBM Globalization"
-    export GAAS_DASHBOARD="unknown"
+    echo "Using latest cf CLI"
+    export GAAS_DASHBOARD=$(${EXT_DIR}/bin/cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
+    debugme ${EXT_DIR}/bin/cf services
+    debugme ${EXT_DIR}/bin/cf service "IBM Globalization"
+
+    if [ -z "$GAAS_DASHBOARD" ]; then 
+        echo -e "${red}Could not locate dashboard for service IBM Globalization${no_color}"
+        export GAAS_DASHBOARD="unknown, please locate the service in your IBM Bluemix dashboard"
+    fi 
+
 else
     debugme echo "found GAAS_DASHBOARD :${GAAS_DASHBOARD}"
 fi 
