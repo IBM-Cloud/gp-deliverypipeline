@@ -35,7 +35,7 @@ usage()
     echo ""
     echo "Using IBM Globalization Service on Bluemix translates files that match source_pattern" 
     echo ""
-    echo "-s        Source file for translation"
+    echo "-s        Name of the Source file for translation.  Will look for this filename, if not found will search the directory tree for the file"
     echo "-p        Name of the Globalization project to create"
     echo "-d        Debug mode"
     echo "-h        Displays this usage information"
@@ -53,9 +53,46 @@ print_limitations() {
     echo "  - translated files will be placed in the same directory as the source file"
 }
 
+wait_for_translation(){
+    local project_id=$1
+    if [ -z $project_id ]; then 
+        echo -e "${red}No project id passed in ${no_color}"
+        return 1
+    fi 
+    local COUNTER=0
+    TRANSLATION_STATE="in progress"
+    while [[ ( $COUNTER -lt 180 ) && ("${TRANSLATION_STATE}" == "in progress") ]]; do
+        let COUNTER=COUNTER+1
+        status=$(java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd project-info -p ${project_id} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY})
+        # strip off junk 
+        status=${status%*]*}
+        debugme echo "${status}"
+        status=${status#*translationStatusByLanguage*}
+        debugme echo "${status}"
+        status=${status#=[*}
+        debugme echo "${status}"
+        echo ${status} | grep "IN_PROGRESS"
+        STILL_WORKING=$?
+        if [ $STILL_WORKING -ne 0 ]; then 
+            TRANSLATION_STATE="completed"
+        else 
+            sleep 15
+        fi  
+        echo "Translation is ${TRANSLATION_STATE}: ${status}"
+        echo ""
+    done
+
+    if [ "${TRANSLATION_STATE}" == "completed" ]; then 
+        return 0
+    else
+        return 1
+    fi 
+}
+
 ########################
 # Process arguments    #
 ########################
+
 while getopts "s:p:hd" OPTION
 do
     case $OPTION in
@@ -114,7 +151,21 @@ fi
 ############################################################
 # Find and translate all files that match input pattern    #
 ############################################################
-source_files=$(find `pwd` -name ${INPUT_PATTERN})
+# check if this is a full path 
+if [ -f ${INPUT_PATTERN} ]; then 
+    echo "found individual file ${INPUT_PATTERN}"
+    export source_files="$INPUT_PATTERN"
+else 
+    echo "searching directory structure for ${INPUT_PATTERN}"
+    export source_files=$(find `pwd` -name ${INPUT_PATTERN})
+    if [ -z $source_files ]; then 
+        echo -e "${red}Could not locate source file that matches ${INPUT_PATTERN} ${no_color}"
+        echo -e "${label_color}Directory contents: ${no_color}"
+        find . 
+        exit 1
+    fi 
+fi 
+
 COUNT=0
 for file in $source_files; do
     cur_dir=`pwd`
@@ -175,6 +226,10 @@ for file in $source_files; do
     # upload source 
     echo "Uploading ${GAAS_SOURCE_FILE}"
     java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd import -f ${file} -l ${source_lang} -t ${filetype} -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
+
+    # wait for translation to complete 
+    wait_for_translation ${THIS_SUBMISSION_NAME}  
+
     # download translated files 
     array=(${lang_all//,/ })
     archive_path="${directory##${cur_dir}/}"
