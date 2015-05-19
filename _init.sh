@@ -95,7 +95,7 @@ export LOG_DIR=$ARCHIVE_DIR
 #############################
 # Install Cloud Foundry CLI #
 #############################
-pushd . >/dev/null\    
+pushd . >/dev/null
 echo "Installing Cloud Foundry CLI"
 cd $EXT_DIR 
 mkdir bin
