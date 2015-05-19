@@ -95,7 +95,7 @@ export LOG_DIR=$ARCHIVE_DIR
 #############################
 # Install Cloud Foundry CLI #
 #############################
-pushd . >/dev/null
+pushd . 
 echo "Installing Cloud Foundry CLI"
 cd $EXT_DIR 
 mkdir bin
@@ -124,10 +124,10 @@ else
 fi 
 popd 
 
-debugme export container_cf_version=$(cf --version)
-debugme export latest_cf_version=$(${EXT_DIR}/bin/cf --version)
-debugme echo "Container Cloud Foundry CLI Version: ${container_cf_version}"
-debugme echo "Latest Cloud Foundry CLI Version: ${latest_cf_version}"
+export container_cf_version=$(cf --version)
+export latest_cf_version=$(${EXT_DIR}/bin/cf --version)
+echo "Container Cloud Foundry CLI Version: ${container_cf_version}"
+echo "Latest Cloud Foundry CLI Version: ${latest_cf_version}"
 
 ###################################
 # Configure Globalization Service #
