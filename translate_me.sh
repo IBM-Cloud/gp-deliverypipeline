@@ -201,7 +201,7 @@ for file in $source_files; do
         exit 1 
     fi 
     debugme echo "prefix:${prefix}"
-    source_lang="${filename##*_}"
+    source_lang="${filename#*_}"
     source_lang="${source_lang%%.*}"
     if [ "${source_lang}" != "en" ]; then 
         echo -e "${red}Currently only supports english as source language and not ${source_lang}${no_color}"
