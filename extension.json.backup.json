@@ -1,0 +1,73 @@
+{
+    "id": "ibm.devops.services.pipeline.globalization.builder",
+    "version": 1,
+    "name_key": "ExtName",
+    "desc_key": "ExtDesc",
+    "extension_type": "Build",
+    "message_key": "ExtMessage",
+    "inputs": [
+        {
+            "type": "Bluemix",
+            "inclusion" : "always"
+        }
+    ],
+    "params": [
+        {
+            "name": "INPUT_PATTERN",
+            "type": "Text",
+            "required": "true",
+            "default_value": "Language_en.properties",
+            "label_key": "INPUT_PATTERN_KEY",
+            "desc_key": "INPUT_PATTERN_DESC"
+        },   
+        {
+            "name": "SETUP_SERVICE_SPACE",
+            "type": "Text",
+            "required": "true",
+            "default_value": "false",
+            "label_key": "ACCEPT_KEY",
+            "desc_key": "ACCEPT_DESC"
+        },
+        {
+            "name": "SUBMISSION_NAME",
+            "type": "Text",
+            "required": "false",
+            "label_key": "SUBMISSION_NAME_KEY",
+            "desc_key": "SUBMISSION_NAME_DESC"
+        }
+    ],
+    "outputs": [
+        {
+            "type": "Artifacts",
+            "inclusion" : "always"
+        }
+    ],
+    "execution": {
+        "type": "JenkinsDocker",
+        "shell": "#!/bin/bash
+set +x
+set +e 
+export INIT_START_TIME=$(date +\"%s\")
+export INPUT_PATTERN=#INPUT_PATTERN#
+export SUBMISSION_NAME=#SUBMISSION_NAME#
+export SETUP_SERVICE_SPACE=#SETUP_SERVICE_SPACE#
+. $EXT_DIR/_init.sh
+INIT_END_TIME=$(date +\"%s\")
+INIT_EST_TIME=$(($INIT_END_TIME-$INIT_START_TIME))
+echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"
+echo \"Runnig translation\"
+$EXT_DIR/translate_me.sh -s ${INPUT_PATTERN} -p ${SUBMISSION_NAME}
+RESULT=$?
+echo \"Done with translation\"
+TRANSLATION_END_TIME=$(date +\"%s\")
+TRANSLATION_EST_TIME=$((INIT_START_TIME-$TRANSLATION_END_TIME))
+echo -e \"Translation runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"
+if [ $RESULT -ne 0 ]; then 
+    exit $RESULT
+fi"
+    }
+    },
+    "project": "https://hub.jazz.net/project/alchemy/Alchemy-Ostanes",
+    "project_example": "https://hub.jazz.net/pipeline/rjminsha/ice-pipeline_demo",
+    "project_contact": "rjminsha@us.ibm.com"
+}

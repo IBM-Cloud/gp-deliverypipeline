@@ -1,0 +1,20 @@
+# NLS_ENCODING=UTF-8
+ExtName=(Experimental) IBM Globalization 
+ExtDesc=IBM Globalization provides machine translation and editing capabilities that enable you to rapidly create, maintain, and revise translations for your Bluemix™ application.  This extension allows for the application developer to dynamically translate property files using machine translation.  The application developer can either include updated property files directly in the application package or the applicaiton can use dynamic resource bundles for real-time lookup of strings. 
+ExtMessage=Refer to the following <a href="https://developer.ibm.com/bluemix/2015/04/28/set-up-machine-translation-with-ibm-devops-services"> tutorial</a>. 
+
+INPUT_PATTERN_KEY=Source file name
+INPUT_PATTERN_DESC=Identifies the name of the input files to be translated.  Uses Linux find to identify any files that match this name within the source code.  For example, 'Language_en.properties' will match any file of that name in sub directories.  If there are multiple files that match this name multiple globalization projects will be created.  
+
+# Accepting the creation of services 
+ACCEPT_KEY=Set up service and space for me
+ACCEPT_DESC=When this option is set to true the IBM Globalization Service will be added to the space if needed.  Review the <a href="https://www-03.ibm.com/software/sla/sladb.nsf/sla/bm-6620-01">Terms of Use</a>.
+
+SUBMISSION_NAME_KEY=Globalization project name 
+SUBMISSION_NAME_DESC=The name of the globalization project to be submitted.  This will be the name of the project as it appears on the Globalization Service in your IBM Bluemix Dashboard.  
+
+# Manually adding these back in to allow IBM Globalization Service to import 
+COMMAND_KEY=removed
+COMMAND_DESC=removed
+OUTPUT_DIR_KEY=removed
+OUTPUT_DIR_DESC=removed
