@@ -159,9 +159,36 @@ update_project_with_translated_files(){
         archive_path="${directory##${cur_dir}/}"
         if [ "${single_file}" == "TRUE" ]; then
             archive_path="."
-            THIS_SUBMISSION_NAME=${SUBMISSION_NAME}
+            if [ -z ${SUBMISSION_NAME} ]; then 
+                THIS_SUBMISSION_NAME="DefaultProject"
+            else 
+                THIS_SUBMISSION_NAME=${SUBMISSION_NAME}
+            fi 
         else 
-            THIS_SUBMISSION_NAME="${SUBMISSION_NAME}_${archive_path}"
+            # massage archive path to provide a good project name 
+            # remove src if it is there 
+            mypackage=${archive_path##src}
+            # replace / with . 
+            mypackage=${mypackage////.} 
+            if [ -z ${mypackage} ]; then 
+                debugme echo "could not create package name from $archive_path"
+                if [ -z ${SUBMISSION_NAME} ]; then 
+                    echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
+                    THIS_SUBMISSION_NAME="DefaultProject"
+                else 
+                    debugme echo "Submission prefix set"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
+                fi 
+            else 
+                if [ -z ${SUBMISSION_NAME} ]; then 
+                    debugme echo "No submission prefix, using package: ${mypackage}"
+                    THIS_SUBMISSION_NAME="${mypackage}"
+                else 
+                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}_${mypackage}"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}_${mypackage}"
+                fi 
+            fi 
+            debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
         fi 
         
         pushd . 
@@ -253,9 +280,37 @@ create_project_download_files(){
         archive_path="${directory##${cur_dir}/}"
         if [ "${single_file}" == "TRUE" ]; then
             archive_path="."
-            THIS_SUBMISSION_NAME=${SUBMISSION_NAME}
+            if [ -z ${SUBMISSION_NAME} ]; then 
+                THIS_SUBMISSION_NAME="DefaultProject"
+            else 
+                THIS_SUBMISSION_NAME=${SUBMISSION_NAME}
+            fi 
         else 
-            THIS_SUBMISSION_NAME="${SUBMISSION_NAME}_${archive_path}"
+            # massage archive path to provide a good project name 
+            # remove src if it is there 
+            mypackage=${archive_path##src}
+            # replace / with . 
+            mypackage=${mypackage////.} 
+            if [ -z ${mypackage} ]; then 
+                debugme echo "could not create package name from $archive_path"
+                if [ -z ${SUBMISSION_NAME} ]; then 
+                    echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
+                    THIS_SUBMISSION_NAME="DefaultProject"
+                else 
+                    debugme echo "Submission prefix set"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
+                fi 
+            else 
+                if [ -z ${SUBMISSION_NAME} ]; then 
+                    debugme echo "No submission prefix, using package: ${mypackage}"
+                    THIS_SUBMISSION_NAME="${mypackage}"
+                else 
+                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}_${mypackage}"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}_${mypackage}"
+                fi 
+            fi 
+            debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
+
         fi 
         echo "---------------------------------------------------------------------------------------"
         echo "Checking/creating Globalization Project ${THIS_SUBMISSION_NAME} "
@@ -339,8 +394,7 @@ if [ -z $GAAS_API_KEY ]; then
 fi 
 
 if [ -z $SUBMISSION_NAME ]; then 
-    echo -e "${red}SUBMISSION_NAME must be set in the environment${no_color}"
-    exit 1
+    echo -e "${yellow}No project prefix set${no_color}"
 fi 
 
 if [ -z $GAAS_LIB ]; then 
