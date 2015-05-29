@@ -62,6 +62,21 @@ echo \"Done with translation\"
 TRANSLATION_END_TIME=$(date +\"%s\")
 TRANSLATION_EST_TIME=$((INIT_START_TIME-$TRANSLATION_END_TIME))
 echo -e \"Translation runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"
+# archive everything 
+
+if [ \"${ARCHIVE_DIR}\" == \"${WORKSPACE}\" ]; then 
+    echo \"Achive directory, is the working directory\"
+else 
+    echo \"Archive directory, is #{ARCHIVE_DIR}.  Copy all content to that directory\"
+    pushd 
+    cd ${WORKSPACE}
+    tar -cvf source.tar *
+    mv source.tar ${ARCHIVE_DIR}
+    cd ${ARCHIVE_DIR}
+    tar -xvf source.tar 
+    rm source.tar 
+    popd 
+fi 
 if [ $RESULT -ne 0 ]; then 
     exit $RESULT
 fi"

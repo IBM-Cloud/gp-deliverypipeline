@@ -440,6 +440,7 @@ else
     exit 1
 fi 
 
+
 # attempt to find dashboard
 export GAAS_DASHBOARD=$(cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
 debugme cf services
