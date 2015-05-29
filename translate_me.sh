@@ -184,8 +184,8 @@ update_project_with_translated_files(){
                     debugme echo "No submission prefix, using package: ${mypackage}"
                     THIS_SUBMISSION_NAME="${mypackage}"
                 else 
-                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}_${mypackage}"
-                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}_${mypackage}"
+                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
                 fi 
             fi 
             debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
@@ -289,6 +289,8 @@ create_project_download_files(){
             # massage archive path to provide a good project name 
             # remove src if it is there 
             mypackage=${archive_path##src}
+            mypackage=${archive_path##/}
+
             # replace / with . 
             mypackage=${mypackage////.} 
             if [ -z ${mypackage} ]; then 
@@ -305,8 +307,8 @@ create_project_download_files(){
                     debugme echo "No submission prefix, using package: ${mypackage}"
                     THIS_SUBMISSION_NAME="${mypackage}"
                 else 
-                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}_${mypackage}"
-                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}_${mypackage}"
+                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
                 fi 
             fi 
             debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
