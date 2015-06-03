@@ -68,14 +68,18 @@ if [ \"${ARCHIVE_DIR}\" == \"${WORKSPACE}\" ]; then
     echo \"Achive directory, is the working directory\"
 else 
     echo \"Archive directory, is ${ARCHIVE_DIR}.  Copy all content to that directory\"
-    pushd ${WORKSPACE}
-    tar -cf source.tar * .git
-    ls -la
+    pushd ${WORKSPACE} &> /dev/null
+    # also copy .git metadata
+    if [ -d .git ]; then
+        tar -cf source.tar * .git
+    else
+        tar -cf source.tar *
+    fi
     mv source.tar ${ARCHIVE_DIR}
     cd ${ARCHIVE_DIR}
     tar -xf source.tar 
     rm source.tar 
-    popd 
+    popd &> /dev/null
 fi 
 if [ $RESULT -ne 0 ]; then 
     exit $RESULT
