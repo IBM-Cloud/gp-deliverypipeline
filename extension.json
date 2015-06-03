@@ -68,16 +68,13 @@ if [ \"${ARCHIVE_DIR}\" == \"${WORKSPACE}\" ]; then
     echo \"Achive directory, is the working directory\"
 else 
     echo \"Archive directory, is ${ARCHIVE_DIR}.  Copy all content to that directory\"
-    pushd 
-    #set to archive hidden directories and files with *
-    shopt -s dotglob
-    cd ${WORKSPACE}
-    tar -cf source.tar *
+    pushd ${WORKSPACE}
+    tar -cf source.tar * .git
+    ls -la
     mv source.tar ${ARCHIVE_DIR}
     cd ${ARCHIVE_DIR}
     tar -xf source.tar 
     rm source.tar 
-    shopt -u dotglob
     popd 
 fi 
 if [ $RESULT -ne 0 ]; then 
