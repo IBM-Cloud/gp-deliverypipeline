@@ -67,13 +67,13 @@ echo -e \"Translation runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`
 if [ \"${ARCHIVE_DIR}\" == \"${WORKSPACE}\" ]; then 
     echo \"Achive directory, is the working directory\"
 else 
-    echo \"Archive directory, is #{ARCHIVE_DIR}.  Copy all content to that directory\"
+    echo \"Archive directory, is ${ARCHIVE_DIR}.  Copy all content to that directory\"
     pushd 
     cd ${WORKSPACE}
-    tar -cvf source.tar *
+    tar -cf source.tar *
     mv source.tar ${ARCHIVE_DIR}
     cd ${ARCHIVE_DIR}
-    tar -xvf source.tar 
+    tar -xf source.tar 
     rm source.tar 
     popd 
 fi 
