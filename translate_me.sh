@@ -363,7 +363,7 @@ create_project_download_files(){
         cp "${prefix}_pt-BR.${extension}" "${prefix}_pt-BR.${extension}"
         cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
 
-        echo -e "${green}Successfully processed ${local_file_path} ${no_color}"
+        echo -e "${green}Successfully processed source file ${local_file_path} ${no_color}"
         popd
     done 
     return 0
