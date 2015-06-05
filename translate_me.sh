@@ -351,7 +351,16 @@ create_project_download_files(){
             fi 
             echo ""
         done
+        echo "Creating file variations"
+        cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh_Hans.${extension}"
         cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh-CN.${extension}"
+        cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh_CN.${extension}"
+
+        cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh_Hant.${extension}"
+        cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
+        cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh_TW.${extension}"
+
+        cp "${prefix}_pt-BR.${extension}" "${prefix}_pt-BR.${extension}"
         cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
 
         echo -e "${green}Successfully processed ${local_file_path} ${no_color}"
