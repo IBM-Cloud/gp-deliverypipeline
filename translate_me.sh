@@ -427,12 +427,21 @@ if [ "${JOB_TYPE}" == "UPDATE" ]; then
 
    update_project_with_translated_files
    result=$?
+   if [ $result -ne 1 ]; then
+        echo -e "${red}Failed to Globalize project${no_color}"
+        exit $result
+   fi 
+
 elif [ "${JOB_TYPE}" == "CREATE" ]; then
     echo "-----------------------------------------------------------------------------------------"
     echo "Checking/creating Globalization project and uploading new strings for machine translation"
     echo "-----------------------------------------------------------------------------------------"
     create_project_download_files
     result=$?
+    if [ $result -ne 1 ]; then
+        echo -e "${red}Failed to Globalize project${no_color}"
+        exit $result
+   fi 
 else 
     echo "Job type must be either CREATE or UPDATE"
     usage 
