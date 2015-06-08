@@ -352,8 +352,7 @@ create_project_download_files(){
             cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
             cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh_TW.${extension}"
 
-            cp "${prefix}_pt-BR.${extension}" "${prefix}_pt-BR.${extension}"
-            cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
+            cp "${prefix}_pt-BR.${extension}" "${prefix}_pt_BR.${extension}"
         else 
             debugme "extension type is ${extension} no need to convert to common file formats for Java."
         fi 
