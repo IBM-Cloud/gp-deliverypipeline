@@ -99,11 +99,9 @@ update_project_with_translated_files(){
     if [ -f ${INPUT_PATTERN} ]; then 
         echo "found individual file ${INPUT_PATTERN}"
         export source_files="$INPUT_PATTERN"
-        export single_file="TRUE"
     else 
         echo "searching directory structure for ${INPUT_PATTERN}"
         export source_files=$(find `pwd` -name ${INPUT_PATTERN})
-        export single_file="FALSE"
         echo "${source_files}"
         if [ -z "${source_files}" ]; then 
             echo -e "${red}Could not locate source file that matches ${INPUT_PATTERN} ${no_color}"
@@ -157,39 +155,37 @@ update_project_with_translated_files(){
         fi 
         
         archive_path="${directory##${cur_dir}/}"
-        if [ "${single_file}" == "TRUE" ]; then
-            archive_path="."
+        # massage archive path to provide a good project name 
+        # remove src if it is there 
+        debugme echo "processing package name: $archive_path"
+        mypackage=${archive_path##src}
+        debugme echo "  removed src: $mypackage"
+        # replace / with . 
+        mypackage=${mypackage////.} 
+        debugme echo "  replaced / with . : $mypackage"
+        # removing leading . 
+        mypackage=${mypackage##.}
+        debugme echo "done processing ${mypackage}"
+        if [ -z ${mypackage} ]; then 
+            debugme echo "could not create package name from $archive_path using ${mypackage}"
             if [ -z ${SUBMISSION_NAME} ]; then 
+                echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
                 THIS_SUBMISSION_NAME="DefaultProject"
             else 
-                THIS_SUBMISSION_NAME=${SUBMISSION_NAME}
+                debugme echo "Submission prefix set"
+                THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
             fi 
         else 
-            # massage archive path to provide a good project name 
-            # remove src if it is there 
-            mypackage=${archive_path##src}
-            # replace / with . 
-            mypackage=${mypackage////.} 
-            if [ -z ${mypackage} ]; then 
-                debugme echo "could not create package name from $archive_path"
-                if [ -z ${SUBMISSION_NAME} ]; then 
-                    echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
-                    THIS_SUBMISSION_NAME="DefaultProject"
-                else 
-                    debugme echo "Submission prefix set"
-                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
-                fi 
+            if [ -z ${SUBMISSION_NAME} ]; then 
+                debugme echo "No submission prefix, using package: ${mypackage}"
+                THIS_SUBMISSION_NAME="${mypackage}"
             else 
-                if [ -z ${SUBMISSION_NAME} ]; then 
-                    debugme echo "No submission prefix, using package: ${mypackage}"
-                    THIS_SUBMISSION_NAME="${mypackage}"
-                else 
-                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
-                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
-                fi 
+                debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
+                THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
             fi 
-            debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
         fi 
+        debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
+        
         
         pushd . 
         cd ${directory}
@@ -224,11 +220,9 @@ create_project_download_files(){
     if [ -f ${INPUT_PATTERN} ]; then 
         echo "found individual file ${INPUT_PATTERN}"
         export source_files="$INPUT_PATTERN"
-        export single_file="TRUE"
     else 
         echo "searching directory structure for ${INPUT_PATTERN}"
         export source_files=$(find `pwd` -name ${INPUT_PATTERN})
-        export single_file="FALSE"
         echo "${source_files}"
         if [ -z "${source_files}" ]; then 
             echo -e "${red}Could not locate source file that matches ${INPUT_PATTERN} ${no_color}"
@@ -278,42 +272,39 @@ create_project_download_files(){
         debugme echo "${label_color}Processed files will be placed in ${directory} and will follow naming pattern:${prefix}_[lang].${extension} ${no_color}"
         
         archive_path="${directory##${cur_dir}/}"
-        if [ "${single_file}" == "TRUE" ]; then
-            archive_path="."
+        # massage archive path to provide a good project name 
+        # remove src if it is there 
+        debugme echo "processing package name: $archive_path"
+        mypackage=${archive_path##src}
+        debugme echo "  removed src: $mypackage"
+        # replace / with . 
+        mypackage=${mypackage////.} 
+        debugme echo "  replaced / with . : $mypackage"
+        mypackage=${mypackage##.}
+
+        debugme echo "done processing ${mypackage}"
+
+
+        if [ -z ${mypackage} ]; then 
+            debugme echo "could not create package name from $archive_path"
             if [ -z ${SUBMISSION_NAME} ]; then 
+                echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
                 THIS_SUBMISSION_NAME="DefaultProject"
             else 
-                THIS_SUBMISSION_NAME=${SUBMISSION_NAME}
+                debugme echo "Submission prefix set"
+                THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
             fi 
         else 
-            # massage archive path to provide a good project name 
-            # remove src if it is there 
-            mypackage=${archive_path##src}
-            mypackage=${archive_path##/}
-
-            # replace / with . 
-            mypackage=${mypackage////.} 
-            if [ -z ${mypackage} ]; then 
-                debugme echo "could not create package name from $archive_path"
-                if [ -z ${SUBMISSION_NAME} ]; then 
-                    echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
-                    THIS_SUBMISSION_NAME="DefaultProject"
-                else 
-                    debugme echo "Submission prefix set"
-                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
-                fi 
+            if [ -z ${SUBMISSION_NAME} ]; then 
+                debugme echo "No submission prefix, using package: ${mypackage}"
+                THIS_SUBMISSION_NAME="${mypackage}"
             else 
-                if [ -z ${SUBMISSION_NAME} ]; then 
-                    debugme echo "No submission prefix, using package: ${mypackage}"
-                    THIS_SUBMISSION_NAME="${mypackage}"
-                else 
-                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
-                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
-                fi 
+                debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
+                THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
             fi 
-            debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
-
         fi 
+        debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
+
         echo "---------------------------------------------------------------------------------------"
         echo "Checking/creating Globalization Project ${THIS_SUBMISSION_NAME} "
         echo "---------------------------------------------------------------------------------------"
@@ -351,17 +342,21 @@ create_project_download_files(){
             fi 
             echo ""
         done
-        echo "Creating file variations"
-        cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh_Hans.${extension}"
-        cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh-CN.${extension}"
-        cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh_CN.${extension}"
+        if [ "${extension}" == "properties" ]; then 
+            echo "Creating file variations that are typically used with java" 
+            cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh_Hans.${extension}"
+            cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh-CN.${extension}"
+            cp "${prefix}_zh-Hans.${extension}" "${prefix}_zh_CN.${extension}"
 
-        cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh_Hant.${extension}"
-        cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
-        cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh_TW.${extension}"
+            cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh_Hant.${extension}"
+            cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
+            cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh_TW.${extension}"
 
-        cp "${prefix}_pt-BR.${extension}" "${prefix}_pt-BR.${extension}"
-        cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
+            cp "${prefix}_pt-BR.${extension}" "${prefix}_pt-BR.${extension}"
+            cp "${prefix}_zh-Hant.${extension}" "${prefix}_zh-TW.${extension}"
+        else 
+            debugme "extension type is ${extension} no need to convert to common file formats for Java."
+        fi 
 
         echo -e "${green}Successfully processed source file ${local_file_path} ${no_color}"
         popd
@@ -426,10 +421,6 @@ else
 fi 
 
 
-if [[ $DEBUG -eq 1 ]]; then
-    set -x 
-fi 
-
 if [ "${JOB_TYPE}" == "UPDATE" ]; then 
     echo "----------------------------------------------------"
     echo "Updating Globalization project with translated files"
@@ -485,7 +476,3 @@ else
 fi 
 echo 
 echo -e "The Globalization Dashboard for this organization and space is located at ${green} ${GAAS_DASHBOARD} ${no_color}"
-
-if [[ $DEBUG -eq 1 ]]; then
-    set +x 
-fi 
