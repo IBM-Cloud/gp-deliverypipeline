@@ -106,7 +106,6 @@ update_project_with_translated_files(){
         if [ -z "${source_files}" ]; then 
             echo -e "${red}Could not locate source file that matches ${INPUT_PATTERN} ${no_color}"
             echo -e "Please update ${label_color}'Source file name'${no_color} parameter on the job to identify the source property files"
-            echo "Source directory contents: "
             echo "{label_color}Suggested source files${no_color}"
             find . | grep *en*properties
             find . | grep *en*json
