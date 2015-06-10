@@ -58,10 +58,11 @@ echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"
 echo \"Running translation\"
 if [ -z \"${SUBMISSION_NAME}\" ]; then 
     $EXT_DIR/translate_me.sh -s ${INPUT_PATTERN}
+    RESULT=$?
 else 
     $EXT_DIR/translate_me.sh -s ${INPUT_PATTERN} -p ${SUBMISSION_NAME}
+    RESULT=$?
 fi 
-RESULT=$?
 echo \"Done with translation\"
 TRANSLATION_END_TIME=$(date +\"%s\")
 TRANSLATION_EST_TIME=$((INIT_START_TIME-$TRANSLATION_END_TIME))
