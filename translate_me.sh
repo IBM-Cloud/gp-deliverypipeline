@@ -456,7 +456,6 @@ export GAAS_DASHBOARD=$(cf service "IBM Globalization" | grep Dashboard | awk '{
 debugme cf services
 debugme cf service "IBM Globalization"
 if [ -z "$GAAS_DASHBOARD" ]; then 
-    echo -e "${label_color}could not locate GaaS Dashboard${no_color}"
     cf services
     cf service "IBM Globalization"
     echo "Using latest cf CLI"
