@@ -227,9 +227,11 @@ create_project_download_files(){
         if [ -z "${source_files}" ]; then 
             echo -e "${red}Could not locate source file that matches ${INPUT_PATTERN} ${no_color}"
             echo -e "Please update ${label_color}'Source file name'${no_color} parameter on the job to identify the source property files"
-            echo "{label_color}Suggested source files${no_color}"
+            echo "${label_color}Suggested source files${no_color}"
             find . | grep *en*properties
             find . | grep *en*json
+            echo "Directory contents:"
+            find . 
             return 1
         fi 
     fi 
