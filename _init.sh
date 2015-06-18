@@ -134,7 +134,7 @@ echo "Latest Cloud Foundry CLI Version: ${latest_cf_version}"
 ################################
 pushd . >/dev/null
 cd $EXT_DIR 
-git_retry clone https://github.com/Osthanes/utilities.git utilities
+git clone https://github.com/Osthanes/utilities.git utilities
 popd >/dev/null
 
 ###################################
