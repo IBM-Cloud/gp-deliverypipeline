@@ -89,8 +89,8 @@ else
     popd &> /dev/null
 fi 
 if [ $RESULT -ne 0 ]; then 
-    exit $RESULT
     ${EXT_DIR}/utilities/sendMessage.sh -l bad -m \"Machine translation for with IBM Globlization Pipeline service failed\"
+    exit $RESULT
 fi
 ${EXT_DIR}/utilities/sendMessage.sh -l good -m \"Machine translation for with IBM Globlization Pipeline complete\"
 "
