@@ -22,7 +22,7 @@
         },   
         {
             "name": "SETUP_SERVICE_SPACE",
-            "type": "Text",
+            "type": "Checkbox",
             "required": "true",
             "default_value": "false",
             "label_key": "ACCEPT_KEY",
