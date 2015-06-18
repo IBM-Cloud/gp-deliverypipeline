@@ -129,6 +129,14 @@ export latest_cf_version=$(${EXT_DIR}/bin/cf --version)
 echo "Container Cloud Foundry CLI Version: ${container_cf_version}"
 echo "Latest Cloud Foundry CLI Version: ${latest_cf_version}"
 
+################################
+# get the extensions utilities #
+################################
+pushd . >/dev/null
+cd $EXT_DIR 
+git clone https://github.com/Osthanes/utilities.git utilities
+popd >/dev/null
+
 ###################################
 # Configure Globalization Service #
 ###################################
