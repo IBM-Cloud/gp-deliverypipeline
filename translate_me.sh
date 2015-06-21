@@ -166,22 +166,24 @@ update_project_with_translated_files(){
         # removing leading . 
         mypackage=${mypackage##.}
         debugme echo "done processing ${mypackage}"
-        if [ -z ${mypackage} ]; then 
-            debugme echo "could not create package name from $archive_path using ${mypackage}"
-            if [ -z ${SUBMISSION_NAME} ]; then 
-                echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
-                THIS_SUBMISSION_NAME="DefaultProject"
+        if [ -z "${THIS_SUBMISSION_NAME}" ]; then 
+            if [ -z ${mypackage} ]; then 
+                debugme echo "could not create package name from $archive_path using ${mypackage}"
+                if [ -z ${SUBMISSION_NAME} ]; then 
+                    echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
+                    THIS_SUBMISSION_NAME="DefaultProject"
+                else 
+                    debugme echo "Submission prefix set"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
+                fi 
             else 
-                debugme echo "Submission prefix set"
-                THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
-            fi 
-        else 
-            if [ -z ${SUBMISSION_NAME} ]; then 
-                debugme echo "No submission prefix, using package: ${mypackage}"
-                THIS_SUBMISSION_NAME="${mypackage}"
-            else 
-                debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
-                THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
+                if [ -z ${SUBMISSION_NAME} ]; then 
+                    debugme echo "No submission prefix, using package: ${mypackage}"
+                    THIS_SUBMISSION_NAME="${mypackage}"
+                else 
+                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
+                fi 
             fi 
         fi 
         debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
@@ -288,23 +290,24 @@ create_project_download_files(){
 
         debugme echo "done processing ${mypackage}"
 
-
-        if [ -z ${mypackage} ]; then 
-            debugme echo "could not create package name from $archive_path"
-            if [ -z ${SUBMISSION_NAME} ]; then 
-                echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
-                THIS_SUBMISSION_NAME="DefaultProject"
+        if [ -z "${THIS_SUBMISSION_NAME}" ]; then 
+            if [ -z ${mypackage} ]; then 
+                debugme echo "could not create package name from $archive_path"
+                if [ -z ${SUBMISSION_NAME} ]; then 
+                    echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
+                    THIS_SUBMISSION_NAME="DefaultProject"
+                else 
+                    debugme echo "Submission prefix set"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
+                fi 
             else 
-                debugme echo "Submission prefix set"
-                THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
-            fi 
-        else 
-            if [ -z ${SUBMISSION_NAME} ]; then 
-                debugme echo "No submission prefix, using package: ${mypackage}"
-                THIS_SUBMISSION_NAME="${mypackage}"
-            else 
-                debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
-                THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
+                if [ -z ${SUBMISSION_NAME} ]; then 
+                    debugme echo "No submission prefix, using package: ${mypackage}"
+                    THIS_SUBMISSION_NAME="${mypackage}"
+                else 
+                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
+                    THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
+                fi 
             fi 
         fi 
         debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
