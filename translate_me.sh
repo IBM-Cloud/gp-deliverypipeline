@@ -50,6 +50,7 @@ debugme() {
 print_limitations() {
     echo -e "${label_color}Current limitations and assumptions:${no_color}"
     echo "  - source pattern will look for files of the format [prefix]_[lang].[type].  For example whateveriwant_en.properties, something_fr.json"
+    echo "  - source pattern will also look for files of the format [prefix].[type] with the expectation that the contents are in English."
     echo "  - desire all languages translated"
     echo "  - translated files will be placed in the same directory as the source file"
 }
@@ -135,15 +136,21 @@ update_project_with_translated_files(){
         esac
 
         # find the naming pattern  
-        prefix="${filename%%_*}"
+        filename_prefix="${filename%.*}"
+        debugme echo "filename_prefix:$filename_prefix"
+        prefix="${filename_prefix%_*}"
         if [ -z "$prefix" ]; then
-            echo -e "${red}Non supported input.  Assuming the input is of type [prefix]_[lang].[type] ${no_color}"
+            echo -e "${red}Non supported input.  Assuming the input is of type [prefix]_[lang].[type] or [prefix].[type] where the lang is assumed to be english${no_color}"
             return 1 
         fi 
         debugme echo "prefix:${prefix}"
         source_lang="${filename#*_}"
         source_lang="${source_lang%%.*}"
         echo "source language:${source_lang}"
+        if [ "$filename_prefix" == "$source_lang" ]; then
+            echo -e "${yellow}Input ${file} doesn't identify the language, assuming it to be english ${no_color}"
+            source_lang="en";
+        fi
 
         # Often translation centers send back non slightly different extensions than what the Globalization Service expects
         if [ "${source_lang}" == "zh_Hans" ]; then 
@@ -261,16 +268,22 @@ create_project_download_files(){
             return 1
         esac
 
-        # find the naming pattern  
-        prefix="${filename%_*}"
+        # find the naming pattern
+        filename_prefix="${filename%.*}"
+        debugme echo "filename_prefix:$filename_prefix"
+        prefix="${filename_prefix%_*}"
         if [ -z "$prefix" ]; then
-            echo -e "${red}Non supported input.  Assuming the input is of type [prefix]_[lang].[type] ${no_color}"
+            echo -e "${red}Non supported input.  Assuming the input is of type [prefix]_[lang].[type] or [prefix].[type] where the lang is assumed to be english ${no_color}"
             return 1 
         fi 
         debugme echo "prefix:${prefix}"
         source_lang="${filename#*_}"
         source_lang="${source_lang%%.*}"
-        if [ "${source_lang}" != "en" ]; then 
+        debugme echo "source_lang:${source_lang}"
+        if [ "$filename_prefix" == "$source_lang" ]; then
+            echo -e "${yellow}Input ${file} doesn't identify the language, assuming it to be english ${no_color}"
+            source_lang="en";
+        elif [ "${source_lang}" != "en" ]; then
             echo -e "${red}Currently only supports english as source language and not ${source_lang}${no_color}"
             return 2
         fi 
