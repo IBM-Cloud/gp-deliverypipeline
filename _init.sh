@@ -135,7 +135,7 @@ if [ $RESULT -ne 0 ]; then
 else 
     echo -e "${green}Successfully setup/checked service within Bluemix space${no_color}"
 fi 
-debugme cat setenv_globalization
+debugme cat setenv_globalization.sh
 . setenv_globalization.sh
 rm setenv_globalization.sh  
 popd 
