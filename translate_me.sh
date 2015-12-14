@@ -398,10 +398,21 @@ if [ -z $JOB_TYPE ]; then
 fi 
 
 if [ -z $GAAS_ENDPOINT ]; then 
-    export GAAS_ENDPOINT="https://gaas.mybluemix.net/translate"
+    export GAAS_ENDPOINT="https://gp-beta-rest.ng.bluemix.net/translate/rest"
 fi 
-if [ -z $GAAS_API_KEY ]; then 
-    echo -e "${red}API Key for Globalization Service must be set in the environment${no_color}"
+
+if [ -z $GAAS_INSTANCE_ID ]; then 
+    echo -e "${red}Instance ID for Globalization Service must be set in the environment${no_color}"
+    exit 1
+fi 
+
+if [ -z $GAAS_USER_ID ]; then 
+    echo -e "${red}User ID for Globalization Service must be set in the environment${no_color}"
+    exit 1
+fi 
+
+if [ -z $GAAS_PASSWORD ]; then 
+    echo -e "${red}Password for Globalization Service must be set in the environment${no_color}"
     exit 1
 fi 
 
