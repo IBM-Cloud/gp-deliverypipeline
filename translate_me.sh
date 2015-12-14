@@ -31,13 +31,13 @@ export lang_all='de,es,fr,it,ja,pt-BR,zh-Hans,zh-Hant'
 
 usage()
 {
-    echo "Usage: `basename $0` -s source_pattern -p project_name [-r CREATE|UPDATE] [-d] [-h]"
+    echo "Usage: `basename $0` -s source_pattern -p bundle_name [-r CREATE|UPDATE] [-d] [-h]"
     echo ""
     echo "Using IBM Globalization Service on Bluemix this script translates files that match source_pattern" 
     echo ""
     echo "-s        Name of the Source file for translation.  Will look for this filename, if not found will search the directory tree for the file"
-    echo "-p        Name of the Globalization project to create"
-    echo "-r        [default=create] stage to run.  create or update.  If create a project will be created if needed and strings will be downloaded, if update then manually translated strings will be updated in the Globalization Service"
+    echo "-p        Name of the Globalization bundle to create"
+    echo "-r        [default=create] stage to run.  create or update.  If create a bundle will be created if needed and strings will be downloaded, if update then manually translated strings will be updated in the Globalization Service"
     echo "-d        Debug mode"
     echo "-h        Displays this usage information"
     echo ""
@@ -55,16 +55,16 @@ print_limitations() {
 }
 
 wait_for_translation(){
-    local project_id=$1
-    if [ -z $project_id ]; then 
-        echo -e "${red}No project id passed in ${no_color}"
+    local bundle_id=$1
+    if [ -z $bundle_id ]; then 
+        echo -e "${red}No bundle id passed in ${no_color}"
         return 1
     fi 
     local COUNTER=0
     TRANSLATION_STATE="in progress"
     while [[ ( $COUNTER -lt 180 ) && ("${TRANSLATION_STATE}" == "in progress") ]]; do
         let COUNTER=COUNTER+1
-        status=$(java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd project-info -p ${project_id} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY})
+        status=$(java -jar "$GAAS_LIB/gptool.jar" show-bundle -b ${bundle_id} -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT})
         # strip off junk 
         status=${status%*]*}
         debugme echo "${status}"
@@ -90,8 +90,8 @@ wait_for_translation(){
     fi 
 }
 
-update_project_with_translated_files(){
-    echo "update_project_with_translated_files"
+update_bundle_with_translated_files(){
+    echo "update_bundle_with_translated_files"
     #########################################################
     # Find and update all files that match input pattern    #
     #########################################################
@@ -155,7 +155,7 @@ update_project_with_translated_files(){
         fi 
         
         archive_path="${directory##${cur_dir}/}"
-        # massage archive path to provide a good project name 
+        # massage archive path to provide a good bundle name 
         # remove src if it is there 
         debugme echo "processing package name: $archive_path"
         mypackage=${archive_path##src}
@@ -170,8 +170,8 @@ update_project_with_translated_files(){
             if [ -z ${mypackage} ]; then 
                 debugme echo "could not create package name from $archive_path using ${mypackage}"
                 if [ -z ${SUBMISSION_NAME} ]; then 
-                    echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
-                    THIS_SUBMISSION_NAME="DefaultProject"
+                    echo -e "${red}No submission prefix, no package discovered, using DefaultBundle${no_color}"
+                    THIS_SUBMISSION_NAME="DefaultBundle"
                 else 
                     debugme echo "Submission prefix set"
                     THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
@@ -181,12 +181,12 @@ update_project_with_translated_files(){
                     debugme echo "No submission prefix, using package: ${mypackage}"
                     THIS_SUBMISSION_NAME="${mypackage}"
                 else 
-                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
+                    debugme echo "Submission prefix set, using bundle: ${SUBMISSION_NAME}.${mypackage}"
                     THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
                 fi 
             fi 
         fi 
-        debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
+        debugme echo "Creating bundle ${THIS_SUBMISSION_NAME}"
         
         
         pushd . 
@@ -194,7 +194,7 @@ update_project_with_translated_files(){
 
         # upload translated file 
         echo "Uploading ${directory}/${filename}"
-        java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd import -f ${file} -l ${source_lang} -t ${filetype} -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
+        java -jar "$GAAS_LIB/gptool.jar" import -f ${file} -l ${source_lang} -t ${filetype} -b ${THIS_SUBMISSION_NAME} -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}
         local result=$?
         if [ ${result} -ne 0 ]; then 
             echo "" 
@@ -214,7 +214,7 @@ update_project_with_translated_files(){
     return 0
 }
 
-create_project_download_files(){
+create_bundle_download_files(){
     ############################################################
     # Find and translate all files that match input pattern    #
     ############################################################
@@ -278,7 +278,7 @@ create_project_download_files(){
         debugme echo "${label_color}Processed files will be placed in ${directory} and will follow naming pattern:${prefix}_[lang].${extension} ${no_color}"
         
         archive_path="${directory##${cur_dir}/}"
-        # massage archive path to provide a good project name 
+        # massage archive path to provide a good bundle name 
         # remove src if it is there 
         debugme echo "processing package name: $archive_path"
         mypackage=${archive_path##src}
@@ -294,8 +294,8 @@ create_project_download_files(){
             if [ -z ${mypackage} ]; then 
                 debugme echo "could not create package name from $archive_path"
                 if [ -z ${SUBMISSION_NAME} ]; then 
-                    echo -e "${red}No submission prefix, no package discovered, using DefaultProject${no_color}"
-                    THIS_SUBMISSION_NAME="DefaultProject"
+                    echo -e "${red}No submission prefix, no package discovered, using DefaultBundle${no_color}"
+                    THIS_SUBMISSION_NAME="DefaultBundle"
                 else 
                     debugme echo "Submission prefix set"
                     THIS_SUBMISSION_NAME="${SUBMISSION_NAME}"
@@ -305,23 +305,23 @@ create_project_download_files(){
                     debugme echo "No submission prefix, using package: ${mypackage}"
                     THIS_SUBMISSION_NAME="${mypackage}"
                 else 
-                    debugme echo "Submission prefix set, using project: ${SUBMISSION_NAME}.${mypackage}"
+                    debugme echo "Submission prefix set, using bundle: ${SUBMISSION_NAME}.${mypackage}"
                     THIS_SUBMISSION_NAME="${SUBMISSION_NAME}.${mypackage}"
                 fi 
             fi 
         fi 
-        debugme echo "Creating project ${THIS_SUBMISSION_NAME}"
+        debugme echo "Creating bundle ${THIS_SUBMISSION_NAME}"
 
         echo "---------------------------------------------------------------------------------------"
-        echo "Checking/creating Globalization Project ${THIS_SUBMISSION_NAME} "
+        echo "Checking/creating Globalization Bundle ${THIS_SUBMISSION_NAME} "
         echo "---------------------------------------------------------------------------------------"
-        echo "Creating/checking for IBM Globalization Service project ${THIS_SUBMISSION_NAME}"
-        java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd create -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY} -s ${source_lang} -l ${lang_all}
+        echo "Creating/checking for IBM Globalization Service bundle ${THIS_SUBMISSION_NAME}"
+        java -jar "$GAAS_LIB/gptool.jar" create -b ${THIS_SUBMISSION_NAME} -l "${source_lang},${lang_all}" -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}
         RESULT=$?
         if [ $RESULT -eq 1 ]; then
-            echo "..Project has been already created"
+            echo "..Bundle has been already created"
         else 
-            echo "..Created project"
+            echo "..Created bundle"
         fi  
         
         pushd . 
@@ -329,7 +329,7 @@ create_project_download_files(){
 
         # upload source 
         echo "Uploading ${GAAS_SOURCE_FILE}"
-        java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd import -f ${file} -l ${source_lang} -t ${filetype} -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
+        java -jar "$GAAS_LIB/gptool.jar" import -f ${file} -l ${source_lang} -t ${filetype} -b ${THIS_SUBMISSION_NAME} -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}
 
         # wait for translation to complete 
         wait_for_translation ${THIS_SUBMISSION_NAME}  
@@ -341,7 +341,7 @@ create_project_download_files(){
         do
             OUTPUT_FILE_NAME="${prefix}_${array[i]}.${extension}"
             echo "Downloading ${array[i]} translated file ${OUTPUT_FILE_NAME} into ${archive_path}"
-            java -cp "$GAAS_LIB/*" com.ibm.gaas.client.tools.cli.GaasCmd export -f ${OUTPUT_FILE_NAME} -l ${array[i]} -t ${filetype} -p ${THIS_SUBMISSION_NAME} -u ${GAAS_ENDPOINT} -k ${GAAS_API_KEY}
+            java -jar "$GAAS_LIB/gptool.jar" export -f ${OUTPUT_FILE_NAME} -l ${array[i]} -t ${filetype} -b ${THIS_SUBMISSION_NAME} -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}
             RESULT=$? 
             if [ $RESULT -ne 0 ]; then
                 echo "Failed"
@@ -398,19 +398,30 @@ if [ -z $JOB_TYPE ]; then
 fi 
 
 if [ -z $GAAS_ENDPOINT ]; then 
-    export GAAS_ENDPOINT="https://gaas.mybluemix.net/translate"
+    export GAAS_ENDPOINT="https://gp-beta-rest.ng.bluemix.net/translate/rest"
 fi 
-if [ -z $GAAS_API_KEY ]; then 
-    echo -e "${red}API Key for Globalization Service must be set in the environment${no_color}"
+
+if [ -z $GAAS_INSTANCE_ID ]; then 
+    echo -e "${red}Instance ID for Globalization Service must be set in the environment${no_color}"
+    exit 1
+fi 
+
+if [ -z $GAAS_USER_ID ]; then 
+    echo -e "${red}User ID for Globalization Service must be set in the environment${no_color}"
+    exit 1
+fi 
+
+if [ -z $GAAS_PASSWORD ]; then 
+    echo -e "${red}Password for Globalization Service must be set in the environment${no_color}"
     exit 1
 fi 
 
 if [ -z $SUBMISSION_NAME ]; then 
-    echo -e "${yellow}No project prefix set${no_color}"
+    echo -e "${yellow}No bundle prefix set${no_color}"
 fi 
 
 if [ -z $GAAS_LIB ]; then 
-    lib_guess=$(find `pwd` -name gaas-java-client-tools*)
+    lib_guess=$(find `pwd` -name gptool.jar)
     lib_directory="${lib_guess%/*}"
     if [ -d "${lib_directory}" ]; then 
         export GAAS_LIB="${lib_directory}" 
@@ -429,10 +440,10 @@ fi
 
 if [ "${JOB_TYPE}" == "UPDATE" ]; then 
     echo "----------------------------------------------------"
-    echo "Updating Globalization project with translated files"
+    echo "Updating Globalization bundle with translated files"
     echo "----------------------------------------------------"
 
-   update_project_with_translated_files
+   update_bundle_with_translated_files
    result=$?
    if [ $result -ne 0 ]; then
         echo -e "${red}Failed to Globalize project${no_color}"
@@ -441,9 +452,9 @@ if [ "${JOB_TYPE}" == "UPDATE" ]; then
 
 elif [ "${JOB_TYPE}" == "CREATE" ]; then
     echo "-----------------------------------------------------------------------------------------"
-    echo "Checking/creating Globalization project and uploading new strings for machine translation"
+    echo "Checking/creating Globalization bundle and uploading new strings for machine translation"
     echo "-----------------------------------------------------------------------------------------"
-    create_project_download_files
+    create_bundle_download_files
     result=$?
     if [ $result -ne 0 ]; then
         echo -e "${red}Failed to Globalize project${no_color}"
@@ -455,26 +466,6 @@ else
     exit 1
 fi 
 
-
-# attempt to find dashboard
-export GAAS_DASHBOARD=$(cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
-debugme cf services
-debugme cf service "IBM Globalization"
-if [ -z "$GAAS_DASHBOARD" ]; then 
-    cf services
-    cf service "IBM Globalization"
-    echo "Using latest cf CLI"
-    export GAAS_DASHBOARD=$(${EXT_DIR}/bin/cf service "IBM Globalization" | grep Dashboard | awk '{print $2}')
-    debugme ${EXT_DIR}/bin/cf services
-    debugme ${EXT_DIR}/bin/cf service "IBM Globalization"
-
-    if [ -z "$GAAS_DASHBOARD" ]; then 
-        echo -e "${red}Could not locate dashboard for service IBM Globalization${no_color}"
-        export GAAS_DASHBOARD="unknown, please locate the service in your IBM Bluemix dashboard"
-    fi 
-else
-    debugme echo "found GAAS_DASHBOARD :${GAAS_DASHBOARD}"
-fi 
 
 if [ $result -eq 0 ]; then
     echo -e "${label_color}All source files have been placed in the archive of this build, and can be used by additional stages${no_color}"

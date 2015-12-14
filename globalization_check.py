@@ -31,8 +31,8 @@ LABEL_COLOR='\033[0;33m'
 LABEL_NO_COLOR='\033[0m'
 STARS="**********************************************************************"
 
-GLOBALIZATION_SERVICE='IBM Globalization'
-GLOBALIZATION_SERVICE_PLAN='Experimental'
+GLOBALIZATION_SERVICE='gp-beta'
+GLOBALIZATION_SERVICE_PLAN='gp-beta-plan'
 STATIC_ANALYSIS_SERVICE='Static Analyzer'
 DEFAULT_SERVICE=STATIC_ANALYSIS_SERVICE
 DEFAULT_SERVICE_PLAN="free"
@@ -357,13 +357,15 @@ def getGlobalizationCredentialsFromBoundApp (service=GLOBALIZATION_SERVICE, bind
             analyzerService = serviceList[service]
             if analyzerService != None:
                 credentials = analyzerService[0]['credentials']
-                uri = credentials['uri']
-                api_key = credentials['api_key']
+                url = credentials['url']
+                instanceId = credentials['instanceId']
+                userId = credentials['userId']
+                password = credentials['password']
 
-    if not (api_key) or not (uri):
-        raise Exception("Unable to get bound credentials for access to the Static Analysis service.")
+    if not (url) or not (instanceId) or not (userId) or not (password):
+        raise Exception("Unable to get bound credentials for access to the Globalization Pipeline service.")
 
-    return api_key, uri
+    return url, instanceId, userId, password
 
 def setenvvariable(key, value, filename="setenv_globalization.sh"):
     keyvalue = 'export %s=%s\n' % (key, value)
@@ -375,12 +377,14 @@ try:
     Logger = setupLogging()
     parsedArgs = parseArgs()
     Logger.info("Getting credentials for Globalization service")
-    api_key, uri = getGlobalizationCredentialsFromBoundApp()
+    url, instanceId, userId, password = getGlobalizationCredentialsFromBoundApp()
     dashboard = findServiceDashboard(GLOBALIZATION_SERVICE)
-    Logger.info("Target uri for Globalization Service is " + uri)
+    Logger.info("Target url for Globalization Service is " + url)
     Logger.info("Writing credentials to setenv_globalization.sh")
-    setenvvariable('GAAS_API_KEY', api_key)
-    setenvvariable('GAAS_ENDPOINT', uri)
+    setenvvariable('GAAS_ENDPOINT', url)
+    setenvvariable('GAAS_INSTANCE_ID', instanceId)
+    setenvvariable('GAAS_USER_ID', userId)
+    setenvvariable('GAAS_PASSWORD', password)
     setenvvariable('GAAS_DASHBOARD', dashboard)
 
     # allow testing connection without full job scan and submission
