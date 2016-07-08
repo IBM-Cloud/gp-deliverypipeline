@@ -487,8 +487,6 @@ done
 shift `expr $OPTIND - 1`
 print_limitations
 
-java -version
-
 ###################
 # Check inputs    #
 ###################
