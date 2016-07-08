@@ -469,7 +469,7 @@ create_bundle_download_files(){
 ########################
 # Process arguments    #
 ########################
-while getopts "s:p:r:hd" OPTION
+while getopts "s:p:r:t:hd" OPTION
 do
     case $OPTION in
         s) export INPUT_PATTERN=$OPTARG; echo "set INPUT_PATTERN to ${OPTARG}";;
