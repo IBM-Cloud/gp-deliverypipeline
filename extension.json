@@ -1,5 +1,5 @@
 {
-    "id": "ibm.devops.services.pipeline.globalization.builder",
+    "id": "ibm.devops.services.pipeline.globalization.full.builder",
     "version": 1,
     "name_key": "ExtName",
     "desc_key": "ExtDesc",
@@ -21,12 +21,12 @@
             "desc_key": "INPUT_PATTERN_DESC"
         },   
         {
-            "name": "SETUP_SERVICE_SPACE",
-            "type": "Checkbox",
+            "name": "TARGET_LANGUAGES",
+            "type": "Text",
             "required": "true",
-            "default_value": "false",
-            "label_key": "ACCEPT_KEY",
-            "desc_key": "ACCEPT_DESC"
+            "default_value": "",
+            "label_key": "LANGUAGES_KEY",
+            "desc_key": "LANGUAGES_DESC"
         },
         {
             "name": "SUBMISSION_NAME",
@@ -50,7 +50,8 @@ set +e
 export INIT_START_TIME=$(date +\"%s\")
 export INPUT_PATTERN=#INPUT_PATTERN#
 export SUBMISSION_NAME=#SUBMISSION_NAME#
-export SETUP_SERVICE_SPACE=#SETUP_SERVICE_SPACE#
+export TARGET_LANGUAGES=\"#TARGET_LANGUAGES#\"
+export SETUP_SERVICE_SPACE=false
 . $EXT_DIR/_init.sh
 INIT_END_TIME=$(date +\"%s\")
 INIT_EST_TIME=$(($INIT_END_TIME-$INIT_START_TIME))
