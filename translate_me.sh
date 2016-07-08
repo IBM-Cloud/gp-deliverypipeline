@@ -31,13 +31,14 @@ export lang_all='de,es,fr,it,ja,pt-BR,zh-Hans,zh-Hant'
 
 usage()
 {
-    echo "Usage: `basename $0` -s source_pattern -p bundle_name [-r CREATE|UPDATE] [-d] [-h]"
+    echo "Usage: `basename $0` -s source_pattern -p bundle_name [-r CREATE|UPDATE] [-d] [-h] -t target_languages"
     echo ""
     echo "Using IBM Globalization Service on Bluemix this script translates files that match source_pattern" 
     echo ""
     echo "-s        Name of the Source file for translation.  Will look for this filename, if not found will search the directory tree for the file"
     echo "-p        Name of the Globalization bundle to create"
     echo "-r        [default=create] stage to run.  create or update.  If create a bundle will be created if needed and strings will be downloaded, if update then manually translated strings will be updated in the Globalization Service"
+    echo "-t        A comma separated list of languages to target on create.  A value of \"ALL\" will target all languages.  \"LIST\" will list all languages but perform no action"
     echo "-d        Debug mode"
     echo "-h        Displays this usage information"
     echo ""
@@ -214,6 +215,88 @@ update_bundle_with_translated_files(){
     return 0
 }
 
+set_all_lang(){
+    #######################################################
+    # Takes source language as argument $1, sets lang_all #
+    #######################################################
+    tmp_value=`java -jar "$GAAS_LIB/gptool.jar" list-mt-languages -f $1 -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}`
+    local RESULT=$?
+    if [ ${RESULT} -eq 0 ]; then
+        lang_all=`echo $tmp_value | grep -o "\\[.*\\]" | tr -d \"[]`
+    fi
+    return $RESULT
+}
+
+print_list_of_target_languages(){
+    ###############################################################
+    # Print list of target languages based on language of source  #
+    #  Set value of lang_all to match this value                  #
+    ###############################################################
+    # check if this is a full path 
+    if [ -f ${INPUT_PATTERN} ]; then 
+        echo "found individual file ${INPUT_PATTERN}"
+        export source_files="$INPUT_PATTERN"
+    else 
+        echo "searching directory structure for ${INPUT_PATTERN}"
+        export source_files=$(find `pwd` -name ${INPUT_PATTERN})
+        echo "${source_files}"
+        if [ -z "${source_files}" ]; then 
+            echo -e "${red}Could not locate source file that matches ${INPUT_PATTERN} ${no_color}"
+            echo -e "Please update ${label_color}'Source file name'${no_color} parameter on the job to identify the source property files"
+            echo "${label_color}Suggested source files${no_color}"
+            find . | grep *en*properties
+            find . | grep *en*json
+            echo "Directory contents:"
+            find . 
+            return 1
+        fi 
+    fi 
+
+    for file in $source_files; do
+        cur_dir=`pwd`
+        local_file_path="${file##${cur_dir}/}"
+        echo ""
+        echo ""
+        echo "Processing $local_file_path"
+        directory="${file%/*}"
+        if [ "${directory}" == "${file}" ]; then 
+            directory="."
+        fi 
+        debugme echo "directory of resources:$directory"
+        filename="${file##/*/}"
+        debugme echo "source filename:$filename" 
+        extension="${filename##*.}"
+        debugme echo "filetype:$extension"
+        case $extension in
+            'properties') filetype="java";;
+            'json') filetype="json";;
+            'yml') filetype="yml";;
+            ?) 
+            echo -e "${red}Unrecognized file type $extension used";
+            return 1
+        esac
+
+        # find the naming pattern  
+        prefix="${filename%_*}"
+        if [ -z "$prefix" ]; then
+            echo -e "${red}Non supported input.  Assuming the input is of type [prefix]_[lang].[type] ${no_color}"
+            return 1 
+        fi 
+        debugme echo "prefix:${prefix}"
+        source_lang="${filename#*_}"
+        source_lang="${source_lang%%.*}"
+        debugme echo "source language:${source_lang}"
+        set_all_lang ${source_lang}
+        local RESULT=$?
+        if [ ${RESULT} -eq 0 ]; then
+            echo "Available target languages: ${lang_all}"
+        fi
+        #Always return with the value from this call
+        return $RESULT
+    done
+}
+
+
 create_bundle_download_files(){
     ############################################################
     # Find and translate all files that match input pattern    #
@@ -256,6 +339,7 @@ create_bundle_download_files(){
         case $extension in
             'properties') filetype="java";;
             'json') filetype="json";;
+            'yml') filetype="yml";;
             ?) 
             echo -e "${red}Unrecognized file type $extension used";
             return 1
@@ -270,10 +354,6 @@ create_bundle_download_files(){
         debugme echo "prefix:${prefix}"
         source_lang="${filename#*_}"
         source_lang="${source_lang%%.*}"
-        if [ "${source_lang}" != "en" ]; then 
-            echo -e "${red}Currently only supports english as source language and not ${source_lang}${no_color}"
-            return 2
-        fi 
         debugme echo "source language:${source_lang}"
         debugme echo "${label_color}Processed files will be placed in ${directory} and will follow naming pattern:${prefix}_[lang].${extension} ${no_color}"
         
@@ -310,13 +390,27 @@ create_bundle_download_files(){
                 fi 
             fi 
         fi 
+        
+        if [ "$TARGET_LANG" == "ALL" ]; then
+            set_all_lang ${source_lang}
+            RESULT=$?
+            if [ $RESULT -ne 0 ]; then
+                echo -e "${red}Error retriving all targetable languages ${no_color}"
+                exit $RESULT
+            fi
+            target=${lang_all}
+        elif [ -z $TARGET_LANG ]; then
+            target=${lang_all}
+        else
+            target=${TARGET_LANG}
+        fi
         debugme echo "Creating bundle ${THIS_SUBMISSION_NAME}"
 
         echo "---------------------------------------------------------------------------------------"
         echo "Checking/creating Globalization Bundle ${THIS_SUBMISSION_NAME} "
         echo "---------------------------------------------------------------------------------------"
         echo "Creating/checking for IBM Globalization Service bundle ${THIS_SUBMISSION_NAME}"
-        java -jar "$GAAS_LIB/gptool.jar" create -b ${THIS_SUBMISSION_NAME} -l "${source_lang},${lang_all}" -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}
+        java -jar "$GAAS_LIB/gptool.jar" create -b ${THIS_SUBMISSION_NAME} -l "${source_lang},${target}" -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}
         RESULT=$?
         if [ $RESULT -eq 1 ]; then
             echo "..Bundle has been already created"
@@ -335,7 +429,7 @@ create_bundle_download_files(){
         wait_for_translation ${THIS_SUBMISSION_NAME}  
 
         # download translated files 
-        array=(${lang_all//,/ })
+        array=(${target//,/ })
 
         for i in "${!array[@]}"
         do
@@ -370,6 +464,8 @@ create_bundle_download_files(){
     return 0
 }
 
+
+
 ########################
 # Process arguments    #
 ########################
@@ -379,6 +475,7 @@ do
         s) export INPUT_PATTERN=$OPTARG; echo "set INPUT_PATTERN to ${OPTARG}";;
         p) export SUBMISSION_NAME=$OPTARG; echo "set SUBMISSION_NAME to ${OPTARG}";;
         r) export JOB_TYPE=$OPTARG; echo "set JOB_TYPE to ${OPTARG}";;
+        t) export TARGET_LANG=$OPTARG; echo "set TARGET_LANG to ${OPTARG}";;
         h) usage; exit 1;;
         d) usage; export DEBUG=1;;
         ?) 
@@ -398,7 +495,7 @@ if [ -z $JOB_TYPE ]; then
 fi 
 
 if [ -z $GAAS_ENDPOINT ]; then 
-    export GAAS_ENDPOINT="https://gp-beta-rest.ng.bluemix.net/translate/rest"
+    export GAAS_ENDPOINT="https://gp-rest.ng.bluemix.net/translate/rest"
 fi 
 
 if [ -z $GAAS_INSTANCE_ID ]; then 
@@ -437,8 +534,19 @@ else
     echo "${INPUT_PATTERN} is the source file pattern"
 fi 
 
-
-if [ "${JOB_TYPE}" == "UPDATE" ]; then 
+if [ "${TARGET_LANG}" == "LIST" ]; then
+    echo "---------------------------------"
+    echo "Getting list of target languages"
+    echo "---------------------------------"
+    print_list_of_target_languages
+    result=$?
+    if [ $result -ne 0 ]; then
+        echo -e "${red}Failed to list available languages${no_color}"
+        exit $result
+    fi
+    #Always exit after a list.
+    exit 0
+elif [ "${JOB_TYPE}" == "UPDATE" ]; then 
     echo "----------------------------------------------------"
     echo "Updating Globalization bundle with translated files"
     echo "----------------------------------------------------"

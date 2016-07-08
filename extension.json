@@ -60,10 +60,10 @@ echo \"Running translation\"
 ${EXT_DIR}/utilities/sendMessage.sh -l info -m \"Starting machine translation for with IBM Globlization Pipeline service\"
 
 if [ -z \"${SUBMISSION_NAME}\" ]; then 
-    $EXT_DIR/translate_me.sh -s ${INPUT_PATTERN}
+    $EXT_DIR/translate_me.sh -s ${INPUT_PATTERN} -t ${TARGET_LANGUAGES}
     RESULT=$?
 else 
-    $EXT_DIR/translate_me.sh -s ${INPUT_PATTERN} -p ${SUBMISSION_NAME}
+    $EXT_DIR/translate_me.sh -s ${INPUT_PATTERN} -p ${SUBMISSION_NAME} -t ${TARGET_LANGUAGES}
     RESULT=$?
 fi 
 echo \"Done with translation\"
@@ -93,6 +93,11 @@ if [ $RESULT -ne 0 ]; then
     ${EXT_DIR}/utilities/sendMessage.sh -l bad -m \"Machine translation for with IBM Globlization Pipeline service failed\"
     exit $RESULT
 fi
+if [ $TARGET_LANGUAGES == \"LIST\" ]; then
+    echo \"Exiting List Languages with failure to stop pipeline. Set target languages to ALL or a comma separated list of languages\"
+    exit 1
+fi
+    
 ${EXT_DIR}/utilities/sendMessage.sh -l good -m \"Machine translation for with IBM Globlization Pipeline complete\"
 "
     }
