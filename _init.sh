@@ -112,6 +112,12 @@ export latest_cf_version=$(${EXT_DIR}/bin/cf --version)
 echo "Container Cloud Foundry CLI Version: ${container_cf_version}"
 echo "Latest Cloud Foundry CLI Version: ${latest_cf_version}"
 
+echo "Updating Java to 1.8"
+sudo add-apt-repository -y ppa:openjdk-r/ppa
+sudo apt-get -y update
+sudo apt-get -y install openjdk-8-jre
+sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+
 ################################
 # get the extensions utilities #
 ################################
