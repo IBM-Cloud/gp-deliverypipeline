@@ -410,11 +410,13 @@ create_bundle_download_files(){
         echo "Checking/creating Globalization Bundle ${THIS_SUBMISSION_NAME} "
         echo "---------------------------------------------------------------------------------------"
         echo "Creating/checking for IBM Globalization Service bundle ${THIS_SUBMISSION_NAME}"
-        java -jar "$GAAS_LIB/gptool.jar" create -b ${THIS_SUBMISSION_NAME} -l "${source_lang},${target}" -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}
+        java -jar "$GAAS_LIB/gptool.jar" create -b ${THIS_SUBMISSION_NAME} -l "${source_lang},${target}" -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT} > $EXT_DIR/tmp.log
         RESULT=$?
         if [ $RESULT -eq 1 ]; then
+            debugme cat $EXT_DIR/tmp.log
             echo "..Bundle has been already created"
         else 
+            cat $EXT_DIR/tmp.log
             echo "..Created bundle"
         fi  
         
@@ -455,7 +457,7 @@ create_bundle_download_files(){
 
             cp "${prefix}_pt-BR.${extension}" "${prefix}_pt_BR.${extension}"
         else 
-            debugme "extension type is ${extension} no need to convert to common file formats for Java."
+            debugme echo "extension type is ${extension} no need to convert to common file formats for Java."
         fi 
 
         echo -e "${green}Successfully processed source file ${local_file_path} ${no_color}"
