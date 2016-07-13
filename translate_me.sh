@@ -51,7 +51,6 @@ debugme() {
 print_limitations() {
     echo -e "${label_color}Current limitations and assumptions:${no_color}"
     echo "  - source pattern will look for files of the format [prefix]_[lang].[type].  For example whateveriwant_en.properties, something_fr.json"
-    echo "  - desire all languages translated"
     echo "  - translated files will be placed in the same directory as the source file"
 }
 
