@@ -410,7 +410,7 @@ create_bundle_download_files(){
         echo "Checking/creating Globalization Bundle ${THIS_SUBMISSION_NAME} "
         echo "---------------------------------------------------------------------------------------"
         echo "Creating/checking for IBM Globalization Service bundle ${THIS_SUBMISSION_NAME}"
-        java -jar "$GAAS_LIB/gptool.jar" create -b ${THIS_SUBMISSION_NAME} -l "${source_lang},${target}" -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT} > $EXT_DIR/tmp.log
+        java -jar "$GAAS_LIB/gptool.jar" create -b ${THIS_SUBMISSION_NAME} -l "${source_lang},${target}" -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT} &> $EXT_DIR/tmp.log
         RESULT=$?
         if [ $RESULT -eq 1 ]; then
             debugme cat $EXT_DIR/tmp.log
