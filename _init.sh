@@ -118,6 +118,7 @@ echo "Latest Cloud Foundry CLI Version: ${latest_cf_version}"
 pushd . >/dev/null
 cd $EXT_DIR 
 git clone https://github.com/Osthanes/utilities.git utilities
+export PYTHONPATH=$EXT_DIR/utilities:$PYTHONPATH
 popd >/dev/null
 
 ###################################
