@@ -26,7 +26,6 @@ if len(sys.argv) < 2:
 fakebroker = os.environ.get('GP_FAKE_BROKER')
 if not fakebroker:
     raise Exception('Error: GP_FAKE_BROKER must be set.')
-
 fetcher = urllib2.urlopen(fakebroker)
 credsjson = fetcher.read()
 creds = json.loads(credsjson)

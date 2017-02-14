@@ -2,6 +2,8 @@
 
 The IBM Bluemix Globalization Pipeline service allows you to rapidly and dynamically translate your mobile and cloud applications without having to rebuild, redeploy, or disrupt the delivery of your application. This extension lets you use the Globalization Pipeline service in your Delivery Pipeline
 
+[![Build Status](https://travis-ci.org/IBM-Bluemix/gp-deliverypipeline.svg?branch=master)](https://travis-ci.org/IBM-Bluemix/gp-deliverypipeline)
+
 # documentation 
 
 
