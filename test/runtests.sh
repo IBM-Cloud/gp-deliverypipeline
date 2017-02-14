@@ -29,6 +29,7 @@ fi
 
 # clean up
 rm -vfr ./test/test_es.properties ./test/test_[a-df-z]*  ./test/tmp || true
+rm -vfr ./test/test2* || true
 mkdir -v ./test/tmp
 export EXT_DIR=./test/tmp
 
@@ -57,6 +58,29 @@ bash ./translate_me.sh  -s test_en.properties -p testall -r CREATE -t ALL || ( e
 
 # if OK, no need to keep this
 rm test/ACTUAL
+
+# test JSON
+cp ./test/0-test2_en.json ./test/test2_en.json
+bash ./translate_me.sh -s test2_en.json -p test2 -r CREATE -t qru || ( echo 'Failed' >&2 ; exit 1 ) || exit 1
+
+if ! diff -w ./test/test2_qru.json test/0-expect-test2_qru.json;
+then
+    echo 'Error: target test/test2_qru.json did not match #1' >&2
+    exit 1
+fi
+
+
+# cleanup
+# rm -fv ./test/test2_qru.json
+# test JSON again with an update
+cp ./test/1-test2_en.json ./test/test2_en.json
+bash ./translate_me.sh -s test2_en.json -p test2 -r CREATE -t qru || ( echo 'Failed' >&2 ; exit 1 ) | exit 1
+
+if ! diff -w ./test/test2_qru.json test/1-expect-test2_qru.json;
+then
+    echo 'Error: target test/test2_qru.json did not match #2' >&2
+    exit 1
+fi
 
 echo 'All tests OK!'
 exit 0
