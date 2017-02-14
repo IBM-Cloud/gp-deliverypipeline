@@ -28,11 +28,11 @@ then
 fi
 
 # clean up
-rm -vfr ./test/test_qru.properties ./test/tmp || true
+rm -vfr ./test/test_es.properties ./test/test_[a-df-z]*  ./test/tmp || true
 mkdir -v ./test/tmp
 export EXT_DIR=./test/tmp
 
-# test basic conversion
+# test with pseudo 
 bash ./translate_me.sh  -s test_en.properties -p test -r CREATE -t qru || ( echo 'Failed' >&2 ; exit 1 )
 
 # verify file was translated
@@ -48,6 +48,15 @@ then
     echo 'Error, pseudotranslated content not as expected' >&2
     exit 1
 fi
+
+# test basic conversio of all
+bash ./translate_me.sh  -s test_en.properties -p testall -r CREATE -t ALL || ( echo 'Failed to translate all' >&2 ; exit 1 ) || exit 1
+
+# verify files/line counts
+( wc -l $(ls test/test_* | env LC_COLLATE=C sort)  | tr -s ' ' ' ' |  env LC_COLLATE=C sort -n | tee test/ACTUAL | diff -w test/expect-wc-all.txt  - ) || (echo 'step ALL failed' >&2 ;  echo '-' ; cat test/ACTUAL ; echo '-' ; exit 1 ) || exit 1
+
+# if OK, no need to keep this
+rm test/ACTUAL
 
 echo 'All tests OK!'
 exit 0

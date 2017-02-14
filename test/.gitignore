@@ -1,2 +1,4 @@
 /test_qru.properties
+/test_es.properties
 /tmp
+/test_[a-df-z]*.properties
