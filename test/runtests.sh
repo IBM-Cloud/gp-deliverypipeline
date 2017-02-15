@@ -33,6 +33,29 @@ rm -vfr ./test/test2* || true
 mkdir -v ./test/tmp
 export EXT_DIR=./test/tmp
 
+# verify we can LIST
+bash ./translate_me.sh -r CREATE -t LIST -s test_en.properties | tee ${EXT_DIR}/all.txt
+
+EXPECT_ALL='Available target languages: de,es,fr,it,ja,ko,pt-BR,zh-Hans,zh-Hant'
+
+if ! fgrep -q "${EXPECT_ALL}" ${EXT_DIR}/all.txt;
+then
+    echo 'Error, available list does not match expected:' >&2
+    echo ${EXPECT_ALL} >&2
+    exit 1
+else
+    echo 'OK: Available list OK.'
+fi
+
+# verify that on failure, we get out
+if bash ./translate_me.sh -s testbad_en.json -p testbad -r CREATE -t qru;
+then
+    echo 'FAIL: Hey, testbad_en.json isn’t valid JSON, script should have failed!' >&2
+    exit 1
+else
+    echo 'OK: correct failure on bad JSON' >&2
+fi
+
 # test with pseudo 
 bash ./translate_me.sh  -s test_en.properties -p test -r CREATE -t qru || ( echo 'Failed' >&2 ; exit 1 )
 

@@ -4,3 +4,4 @@
 /test_[a-df-z]*.properties
 /test2_qru.json
 /test2_en.json
+/testbad_qru.json
