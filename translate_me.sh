@@ -424,7 +424,7 @@ create_bundle_download_files(){
 
         # upload source 
         echo "Uploading ${GAAS_SOURCE_FILE}"
-        java -jar "$GAAS_LIB/gptool.jar" import -f ${file} -l ${source_lang} -t ${filetype} -b ${THIS_SUBMISSION_NAME} -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT}
+        java -jar "$GAAS_LIB/gptool.jar" import -f ${file} -l ${source_lang} -t ${filetype} -b ${THIS_SUBMISSION_NAME} -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT} || return 1
 
         # wait for translation to complete 
         wait_for_translation ${THIS_SUBMISSION_NAME}  
