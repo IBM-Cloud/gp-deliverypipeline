@@ -2,6 +2,5 @@
 /test_es.properties
 /tmp
 /test_[a-df-z]*.properties
-/test2_qru.json
-/test2_en.json
+/test2_*.json
 /testbad_qru.json
