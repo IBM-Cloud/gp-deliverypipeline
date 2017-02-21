@@ -413,7 +413,25 @@ create_bundle_download_files(){
         RESULT=$?
         if [ $RESULT -eq 1 ]; then
             debugme cat $EXT_DIR/tmp.log
-            echo "..Bundle has been already created"
+            if fgrep -q -s 'com.ibm.gaas.service.store.DuplicatedResourceException' $EXT_DIR/tmp.log; then
+                echo "..Bundle has been already created"
+                echo "Updating bundle metadata ${THIS_SUBMISSION_NAME}"
+                java -jar "$GAAS_LIB/gptool.jar" update-bundle -b ${THIS_SUBMISSION_NAME} -l "${target}" -i ${GAAS_INSTANCE_ID} -u ${GAAS_USER_ID} -p ${GAAS_PASSWORD} -s ${GAAS_ENDPOINT} &> $EXT_DIR/tmp.log
+                RESULT=$?
+                if [ $RESULT -eq 1 ]; then
+                    debugme cat $EXT_DIR/tmp.log
+                    echo "Failed to update bundle metadata"
+                    cat $EXT_DIR/tmp.log
+                    exit $RESULT
+                else
+                    cat $EXT_DIR/tmp.log
+                    echo "..Updated bundle metadata"
+                fi
+            else
+                echo "Failed to create"
+                cat $EXT_DIR/tmp.log
+                exit $RESULT
+            fi
         else 
             cat $EXT_DIR/tmp.log
             echo "..Created bundle"
