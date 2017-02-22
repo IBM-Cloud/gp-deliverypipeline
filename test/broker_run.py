@@ -30,7 +30,14 @@ fetcher = urllib2.urlopen(fakebroker)
 credsjson = fetcher.read()
 creds = json.loads(credsjson)
 
-GAAS_ENDPOINT = os.environ['GAAS_ENDPOINT'] = ( creds["credentials"]["url"] + '/rest' )
+credurl = ( creds["credentials"]["url"]  )
+
+# This is a workaround, the fake broker ought to include /rest
+# see https://github.com/IBM-Bluemix/gp-js-client/issues/56 for discussion
+if not credurl.endswith('/rest'):
+    credurl += '/rest'
+
+GAAS_ENDPOINT = os.environ['GAAS_ENDPOINT'] = credurl
 GAAS_USER_ID = os.environ['GAAS_USER_ID'] = creds["credentials"]["userId"]
 GAAS_INSTANCE_ID = os.environ['GAAS_INSTANCE_ID'] = creds["credentials"]["instanceId"]
 GAAS_PASSWORD = os.environ['GAAS_PASSWORD'] = creds["credentials"]["password"]
