@@ -1,11 +1,14 @@
 matrix:
   include:
-    - language: node_js
+    - name: Node and Python 2
+      language: node_js
       node_js: 'node'
       script: python ./test/broker_run.py bash ./test/runtests.sh
-    - language: node_js
+    - name: Node and Python 3
+      language: node_js
       node_js: 'node'
       script: python3 ./test/broker_run.py bash ./test/runtests.sh
-    - language: python
+    - name: Linting on Python 3
+      language: python
       install: python3 -m pip install flake8
       script: flake8 . --count --select=E9,F63,F72,F82 --show-source --statistics
