@@ -3,6 +3,7 @@
     "version": 1,
     "name_key": "ExtName",
     "desc_key": "ExtDesc",
+    "deprecated": true,
     "extension_type": "Build",
     "message_key": "ExtMessage",
     "inputs": [
